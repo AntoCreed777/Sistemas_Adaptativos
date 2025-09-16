@@ -3,8 +3,11 @@
 test*
 *.csv
 *.txt
+*.graph
 .idea/*
 .vscode/*
 vgcore*
 build/*.o
 */build/*.o
+.cache/*
+compile_commands.json
