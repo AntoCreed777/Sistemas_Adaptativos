@@ -2,16 +2,18 @@
 #include <iostream>
 #include "graph_matrix.h"
 #include "utils.h"   // el header donde declaraste read_graph
+#include "greedy_random.h"
 #include "greedy.h"
 
 int main() {
     try {
         // Carga del grafo
-        std::string ruta = "erdos_n3000_p0c0.8_8.graph"; // cámbiala por tu archivo real
+        std::string ruta = "erdos_n3000_p0c0.1_4.graph"; // cámbiala por tu archivo real
         GraphMatrix g = graph_creation::read_graph(ruta);
 
         // Soluciona el grafo
-        auto solve = solve_misp(g);
+        //auto solve = greedy_random::solve_misp(g);
+        auto solve = greedy::solve_misp(g);
 
         // Impresion de resultado
 
