@@ -4,10 +4,10 @@
 #include "graph_list.h"
 
 namespace graph_creation {
-    GraphMatrix read_graph(const std::string& ruta) {
-        std::ifstream file(ruta);
+    GraphMatrix read_graph(const std::string& root) {
+        std::ifstream file(root);
         if (!file.is_open()) {
-            throw std::runtime_error("No se pudo abrir el archivo: " + ruta);
+            throw std::runtime_error("No se pudo abrir el archivo: " + root);
         }
 
         int num_vertices;
@@ -22,10 +22,10 @@ namespace graph_creation {
         return g;
     } 
 
-    GraphList read_graph_adjacent(const std::string& ruta) {
-        std::ifstream file(ruta);
+    GraphList read_graph_adjacent(const std::string& root) {
+        std::ifstream file(root);
         if (!file.is_open()) {
-            throw std::runtime_error("No se pudo abrir el archivo: " + ruta);
+            throw std::runtime_error("No se pudo abrir el archivo: " + root);
         }
 
         int num_vertices;

@@ -8,8 +8,10 @@
 int main() {
     try {
         // Carga del grafo
-        std::string ruta = "erdos_n3000_p0c0.1_4.graph"; // cámbiala por tu archivo real
-        GraphMatrix g = graph_creation::read_graph(ruta);
+        std::string base_root = "./src/grafos/";
+        std::string file_name = "erdos_n3000_p0c0.1_4.graph";
+        std::string root = base_root + file_name; // cámbiala por tu archivo real
+        GraphMatrix g = graph_creation::read_graph(root);
 
         // Soluciona el grafo
         //auto solve = greedy_random::solve_misp(g);

@@ -4,6 +4,6 @@
 #include "graph_list.h"
 
 namespace graph_creation {
-    GraphMatrix read_graph(const std::string& ruta);
-    GraphList read_graph_adjacent(const std::string& ruta);
+    GraphMatrix read_graph(const std::string& root);
+    GraphList read_graph_adjacent(const std::string& root);
 }
