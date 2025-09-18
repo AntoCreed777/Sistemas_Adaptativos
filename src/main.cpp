@@ -10,14 +10,14 @@ int main() {
     try {
         // Carga del grafo
         std::string base_root = "./grafos/";
-        std::string file_name = "erdos_n1000_p0c0.1_1.graph";
+        std::string file_name = "erdos_n1000_p0c0.05_1.graph";
         std::string root = base_root + file_name; // cámbiala por tu archivo real
         GraphMatrix g = graph_creation::read_graph(root);
         GraphMatrix g_copy = g;
 
         // Soluciona el grafo
-        //auto solve = greedy_random::solve_misp(g);
-        auto solve = greedy::solve_misp(g);
+        auto solve = greedy_random::solve_misp(g, 0.2, 10);
+        //auto solve = greedy::solve_misp(g);
 
         // Impresion de resultado
 

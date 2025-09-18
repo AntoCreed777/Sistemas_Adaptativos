@@ -3,9 +3,10 @@
 #include <random>
 #include <stdexcept>
 #include <iostream>
+#include <algorithm>
 
 namespace greedy_random {
-    std::vector<int> solve_misp(GraphMatrix& graph, float alpha) {
+    std::vector<int> solve_misp(GraphMatrix& graph, float alpha, int random_select_list_length) {
         std::random_device rd;
         std::mt19937 gen(rd());
         std::uniform_real_distribution<float> dist_alpha(0.0, 1.0);
@@ -24,14 +25,24 @@ namespace greedy_random {
                         remaining_vertices.push_back(i);
                     }
                 }
-                // Eligo de entre los vertices restantes
-                if (!remaining_vertices.empty()) {
-                    std::uniform_int_distribution<> dis(0, remaining_vertices.size() - 1);
-                    chosen_vertex = remaining_vertices[dis(gen)];
-                }
-                else {
+
+                if (remaining_vertices.empty()) {
                     throw std::runtime_error("No quedan vértices restantes para elegir aleatoriamente.");
                 }
+
+                // Ordeno los vértices restantes por grado ascendente
+                std::sort(
+                    remaining_vertices.begin(),
+                    remaining_vertices.end(),
+                    [&graph](int a, int b) {
+                        return graph.get_degree(a) < graph.get_degree(b);
+                    }
+                );
+
+                // Selecciono aleatoriamente uno de los primeros 'random_select_list_length' vértices (o todos si hay menos)
+                int selection_range = std::min(random_select_list_length, static_cast<int>(remaining_vertices.size())) - 1;
+                std::uniform_int_distribution<> dis(0, selection_range);
+                chosen_vertex = remaining_vertices[dis(gen)];
             }
             else {
                 // Eleccion segun heuristica
