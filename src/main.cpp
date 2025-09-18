@@ -9,7 +9,7 @@
 int main() {
     try {
         // Carga del grafo
-        std::string base_root = "./src/grafos/";
+        std::string base_root = "./grafos/";
         std::string file_name = "erdos_n1000_p0c0.1_1.graph";
         std::string root = base_root + file_name; // cámbiala por tu archivo real
         GraphMatrix g = graph_creation::read_graph(root);

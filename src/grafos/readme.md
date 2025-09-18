@@ -1,2 +1,0 @@
-# Uso de la carpeta grafos
-Para el dataset de grafos se usara esta carpeta, que aparecera vacia en github. La idea es que por el tamaño de los mismos se incluyen en local los grafos de los que se desee una aproximación.
