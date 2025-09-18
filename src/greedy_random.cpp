@@ -4,6 +4,7 @@
 #include <stdexcept>
 #include <iostream>
 #include <algorithm>
+#include "definiciones.h"
 
 namespace greedy_random {
     std::vector<int> solve_misp(GraphMatrix& graph, float alpha, int random_select_list_length) {
@@ -12,6 +13,8 @@ namespace greedy_random {
         std::uniform_real_distribution<float> dist_alpha(0.0, 1.0);
 
         std::vector<int> solution_vertices;
+
+        if (random_select_list_length == -1) random_select_list_length = INF;
 
         while(!graph.is_empty()) {
             int chosen_vertex;
