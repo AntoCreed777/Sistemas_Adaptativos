@@ -1,5 +1,7 @@
+#include <cstddef>
 #include <fstream>
 #include <stdexcept>
+#include <vector>
 #include "graph_matrix.h"
 #include "graph_list.h"
 
@@ -38,4 +40,15 @@ namespace graph_creation {
         }
         return g;
     }
+    bool check_consistency(GraphMatrix& original_graph, std::vector<int>& answer){
+        for(size_t i = 0; i < answer.size(); i++){
+            for (size_t j = i+1; j < answer.size(); j++){
+                if (original_graph.has_edge(answer[i], answer[j])){
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
 }

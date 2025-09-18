@@ -6,4 +6,6 @@
 namespace graph_creation {
     GraphMatrix read_graph(const std::string& root);
     GraphList read_graph_adjacent(const std::string& root);
+    
+    bool check_consistency(GraphMatrix& original_graph, std::vector<int>& answer);
 }
