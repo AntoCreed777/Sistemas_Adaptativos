@@ -2,7 +2,7 @@
 CXX = g++
 
 # Flags de compilación
-CXXFLAGS_BASE = -I ./include -Wall
+CXXFLAGS_BASE = -I ./include -I ./libs -Wall
 CXXFLAGS_WARNINGS = -Wextra -Wpedantic -Wshadow -Wconversion -Wsign-conversion -Wfloat-equal
 CXXFLAGS_OPTIMIZATIONS = -O2 -march=native -mtune=native
 CXXFLAGS_DEBUGGING = -g #-ggdb	# Descomentar para depurar con GDB

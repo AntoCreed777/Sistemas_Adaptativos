@@ -1,6 +1,6 @@
 
 #include <iostream>
-#include "cxxopts.hpp"
+#include "cxxopts/cxxopts.hpp"
 #include "graph_matrix.h"
 #include "utils.h"   // el header donde declaraste read_graph
 #include "greedy_random.h"
