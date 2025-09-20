@@ -52,4 +52,9 @@ namespace greedy {
 
         return solution_vertices;
     }
+
+    int solve_misp_size(GraphMatrix& graph){
+        return solve_misp(graph).size();
+    }
+
 }
