@@ -1,4 +1,4 @@
-#Compilador
+# Compilador
 CXX = g++
 
 # Flags de compilación
@@ -17,44 +17,62 @@ CXXFLAGS = $(CXXFLAGS_DEBUG)	 # Cambiar a $(CXXFLAGS_RELEASE) para compilación 
 # Directorios y archivos
 OBJ_DIR = build
 TARGET = main.out
+GREEDY = Greedy.out
+GREEDY_PROB = Greedy-probabilista.out
 
-# Buscar todos los archivos .cpp en el directorio src
-SOURCES = $(wildcard ./src/*.cpp)
-OBJECTS = $(patsubst ./src/%.cpp, $(OBJ_DIR)/%.o, $(SOURCES))
+# Identificar mains y fuentes comunes
+MAINS = ./src/main.cpp ./src/main_greedy.cpp ./src/main_greedy_random.cpp
+ALL_SOURCES = $(wildcard ./src/*.cpp)
+COMMON_SOURCES = $(filter-out $(MAINS), $(ALL_SOURCES))
+
+COMMON_OBJECTS = $(patsubst ./src/%.cpp, $(OBJ_DIR)/%.o, $(COMMON_SOURCES))
+MAIN_OBJ = $(OBJ_DIR)/main.o
+GREEDY_OBJ = $(OBJ_DIR)/main_greedy.o
+GREEDY_PROB_OBJ = $(OBJ_DIR)/main_greedy_random.o
 
 # Indica que las siguientes reglas no son archivos y deben ser ejecutadas desde 0 siempre
-.PHONY: all clean run debug
+.PHONY: all clean run debug memoria
 
-# Regla por defecto: compilar el programa
-all: $(TARGET)
+# Regla por defecto: compilar el programa principal y los extras
+all: $(TARGET) $(GREEDY) $(GREEDY_PROB)
 
-# Regla para compilar el programa
-$(TARGET): $(OBJECTS)
+# Ejecutable principal: usa main.cpp
+$(TARGET): $(COMMON_OBJECTS) $(MAIN_OBJ)
 	@echo "Compilando el programa..."
-	@$(CXX) $(OBJECTS) -o $(TARGET) $(CXXFLAGS)
+	@$(CXX) $(COMMON_OBJECTS) $(MAIN_OBJ) -o $(TARGET) $(CXXFLAGS)
 
-# Regla para compilar los archivos objeto y guardarlos en obj/
+# Ejecutable Greedy (determinista): usa main_greedy.cpp
+$(GREEDY): $(COMMON_OBJECTS) $(GREEDY_OBJ) | $(OBJ_DIR)
+	@echo "Compilando Greedy..."
+	@$(CXX) $(COMMON_OBJECTS) $(GREEDY_OBJ) -o $(GREEDY) $(CXXFLAGS)
+
+# Ejecutable Greedy-probabilista: usa main_greedy_random.cpp
+$(GREEDY_PROB): $(COMMON_OBJECTS) $(GREEDY_PROB_OBJ) | $(OBJ_DIR)
+	@echo "Compilando Greedy-probabilista..."
+	@$(CXX) $(COMMON_OBJECTS) $(GREEDY_PROB_OBJ) -o $(GREEDY_PROB) $(CXXFLAGS)
+
+# Regla para compilar los archivos objeto y guardarlos en build/
 $(OBJ_DIR)/%.o: ./src/%.cpp | $(OBJ_DIR)
 	@echo "Compilando $<..."
 	@$(CXX) -c $< -o $@ $(CXXFLAGS)
 
-# Crear el directorio obj si no existe
+# Crear el directorio build si no existe
 $(OBJ_DIR):
 	@mkdir -p $(OBJ_DIR)
 
-# Regla para ejecutar el programa
+# Regla para ejecutar el programa principal (se mantiene igual)
 run: $(TARGET)
 	@echo "Ejecutando el programa...\n"
 	@./$(TARGET)
 
-# Regla para debuggear el programa
+# Regla para debuggear el programa principal
 debug: $(TARGET)
 	@gdb ./$(TARGET)
 
-# Regla para investigar las fugas de memoria
+# Regla para investigar las fugas de memoria (programa principal)
 memoria: $(TARGET)
 	@valgrind --leak-check=full --track-origins=yes ./$(TARGET)
 
 # Regla para limpiar los archivos generados
 clean:
-	@rm -rf $(OBJ_DIR) $(TARGET)
+	@rm -rf $(OBJ_DIR) $(TARGET) $(GREEDY) $(GREEDY_PROB)
