@@ -1,3 +1,7 @@
+Integrantes:
+- Carlos Tomás Álvarez Norambuena
+- Antonio Jesus Benavides Puentes
+
 Para compilar use el siguiente comando en la raiz del proyecto:
 
 ```bash
