@@ -3,6 +3,8 @@
 # Paraleliza con 5 trabajos simultáneos (ajustable con $1).
 # Formato esperado: erdos_n<n>_p0c<densidad>_<id>.graph (p.ej., erdos_n1000_p0c0.1_1.graph)
 
+### ESTE ARCHIVO FUE DE PRUEBA, NO SE USO PARA LOS EXPERIMENTOS NI PARA LA GENERACION DE LOS .csv
+
 set -Eeuo pipefail
 
 # --- Configurables -----------------------------------------------------------
