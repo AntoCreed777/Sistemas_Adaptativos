@@ -9,7 +9,7 @@ set -Eeuo pipefail
 
 # --- Configurables -----------------------------------------------------------
 DATA_DIR="grafos"                # Carpeta donde están los .graph
-OUT_CSV="experiments_greedy.csv" # Archivo CSV de salida
+OUT_CSV="experiments/results/experiments_greedy.csv" # Archivo CSV de salida
 EXE_NAME="Greedy.out"            # Ejecutable ya compilado
 JOBS=${1:-5}                      # Paralelismo (por defecto 5)
 

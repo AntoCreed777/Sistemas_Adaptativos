@@ -28,6 +28,9 @@ Alpha es la probabilidad de explorar o explotar.
 > [!NOTE]
 > Si el `largo de la lista de seleccion` se coloca como -1 entonces se interpretara internamente como si fuera infinito.
 
+> [!NOTE]
+> Para realizar los experimentos automáticos, debes ejecutar los scripts desde la carpeta raíz del proyecto (no desde la subcarpeta `experiments`).
+
 Para eliminar los archivos compilados e intermedios(.o), ejecute el siguiente comando:
 ```bash
 make clean

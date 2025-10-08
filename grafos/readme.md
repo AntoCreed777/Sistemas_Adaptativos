@@ -1,4 +1,4 @@
-# Carpeta `grafos`
+# Carpeta `grafos/`
 
 Esta carpeta está destinada a almacenar datasets de grafos utilizados en el proyecto. Por motivos de tamaño, los archivos de grafos no se incluyen en el repositorio de GitHub y deben ser gestionados localmente.
 

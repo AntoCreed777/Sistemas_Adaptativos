@@ -8,7 +8,7 @@ set -Eeuo pipefail
 
 # --- Configurables -----------------------------------------------------------
 DATA_DIR="grafos"              # Carpeta donde están los .graph
-OUT_CSV="experiments_greedy.csv"
+OUT_CSV="experiments/results/experiments_greedy.csv"
 EXE_NAME="Greedy.out"
 
 # Crear CSV con encabezado

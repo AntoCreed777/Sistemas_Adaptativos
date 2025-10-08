@@ -9,7 +9,7 @@ set -Eeuo pipefail
 
 # --- Configurables -----------------------------------------------------------
 DATA_DIR="grafos"                          # Carpeta donde están los .graph
-OUT_CSV="experiments_probabilistic.csv"   # Archivo CSV de salida
+OUT_CSV="experiments/results/experiments_probabilistic.csv"   # Archivo CSV de salida
 EXE_NAME="Greedy-probabilista.out"        # Ejecutable ya compilado
 
 # Parámetros de la heurística probabilística
