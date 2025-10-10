@@ -19,9 +19,10 @@ OBJ_DIR = build
 TARGET = main.out
 GREEDY = Greedy.out
 GREEDY_PROB = Greedy-probabilista.out
+TABOO = Taboo.out
 
 # Identificar mains y fuentes comunes
-MAINS = ./src/main.cpp ./src/main_greedy.cpp ./src/main_greedy_random.cpp
+MAINS = ./src/main.cpp ./src/main_greedy.cpp ./src/main_greedy_random.cpp ./src/main_taboo.cpp
 ALL_SOURCES = $(wildcard ./src/*.cpp)
 COMMON_SOURCES = $(filter-out $(MAINS), $(ALL_SOURCES))
 
@@ -29,15 +30,16 @@ COMMON_OBJECTS = $(patsubst ./src/%.cpp, $(OBJ_DIR)/%.o, $(COMMON_SOURCES))
 MAIN_OBJ = $(OBJ_DIR)/main.o
 GREEDY_OBJ = $(OBJ_DIR)/main_greedy.o
 GREEDY_PROB_OBJ = $(OBJ_DIR)/main_greedy_random.o
+TABOO_OBJ = $(OBJ_DIR)/main_taboo.o
 
 # Indica que las siguientes reglas no son archivos y deben ser ejecutadas desde 0 siempre
 .PHONY: all clean run debug memoria
 
 # Regla por defecto: compilar el programa principal y los extras
-all: $(TARGET) $(GREEDY) $(GREEDY_PROB)
+all: $(TARGET) $(GREEDY) $(GREEDY_PROB) $(TABOO)
 
 # Ejecutable principal: usa main.cpp
-$(TARGET): $(COMMON_OBJECTS) $(MAIN_OBJ)
+$(TARGET): $(COMMON_OBJECTS) $(MAIN_OBJ) | $(OBJ_DIR)
 	@echo "Compilando el programa..."
 	@$(CXX) $(COMMON_OBJECTS) $(MAIN_OBJ) -o $(TARGET) $(CXXFLAGS)
 
@@ -50,6 +52,11 @@ $(GREEDY): $(COMMON_OBJECTS) $(GREEDY_OBJ) | $(OBJ_DIR)
 $(GREEDY_PROB): $(COMMON_OBJECTS) $(GREEDY_PROB_OBJ) | $(OBJ_DIR)
 	@echo "Compilando Greedy-probabilista..."
 	@$(CXX) $(COMMON_OBJECTS) $(GREEDY_PROB_OBJ) -o $(GREEDY_PROB) $(CXXFLAGS)
+
+# Ejecutable Tabu: usa main_taboo.cpp
+$(TABOO): $(COMMON_OBJECTS) $(TABOO_OBJ) | $(OBJ_DIR)
+	@echo "Compilando Tabu..."
+	@$(CXX) $(COMMON_OBJECTS) $(TABOO_OBJ) -o $(TABOO) $(CXXFLAGS)
 
 # Regla para compilar los archivos objeto y guardarlos en build/
 $(OBJ_DIR)/%.o: ./src/%.cpp | $(OBJ_DIR)
@@ -75,4 +82,4 @@ memoria: $(TARGET)
 
 # Regla para limpiar los archivos generados
 clean:
-	@rm -rf $(OBJ_DIR) $(TARGET) $(GREEDY) $(GREEDY_PROB)
+	@rm -rf $(OBJ_DIR) $(TARGET) $(GREEDY) $(GREEDY_PROB) $(TABOO)
