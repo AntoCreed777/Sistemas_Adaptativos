@@ -1,33 +1,49 @@
+#include "taboo_search.h"
+
 #include <vector>
 #include <deque>
 #include <chrono>
 #include <unordered_set>
 #include "greedy_random.h"
 #include "graph_matrix.h"
-#include "taboo_search.h"
 
 namespace meta_taboo{
 
-   static inline bool can_add_fast(int v,
-                                    const std::vector<int>& S,
-                                    const std::vector<char>& inS,
-                                    const GraphMatrix& g) {
-        if (v < 0 || v >= g.get_num_vertices()) return false;
-        if (inS[v]) return false;
+    /**
+     * Valida que el vertice sea valido: 0 <= v < g.get_num_vertices(),
+     * si es que esta en la solucion actual: inS[v],
+     * y si esta conectado con algun vertice que ya este en la solucion.
+     */
+    static inline bool can_add (
+        int v,
+        const std::vector<int>& S,
+        const std::vector<char>& inS,
+        const GraphMatrix& g
+    ) {
+        if (
+            v < 0||
+            v >= g.get_num_vertices() ||
+            inS[v]
+        ) return false;
         for (int u : S) if (g.has_edge(u, v)) return false;
         return true;
     }
 
-    // Rellena con 1-0 encadenados (idéntico espíritu a tu local_search)
-    static void greedy_fill_10(std::vector<int>& S,
-                               std::vector<char>& inS,
-                               const GraphMatrix& g) {
+    /**
+     * Hasta que queden vertices que se puedan agregar a la solucion permanece en bucle recorriendo los
+     * vertices y validando si se pueden agregar o no.
+     */
+    static void greedy_fill_10(
+        std::vector<int>& S,
+        std::vector<char>& inS,
+        const GraphMatrix& g
+    ) {
         const int n = g.get_num_vertices();
         bool grew = true;
         while (grew) {
             grew = false;
             for (int v = 0; v < n; ++v) {
-                if (!inS[v] && can_add_fast(v, S, inS, g)) {
+                if (can_add(v, S, inS, g)) {
                     S.push_back(v);
                     inS[v] = true;
                     grew = true;
@@ -37,20 +53,30 @@ namespace meta_taboo{
         }
     }
 
+    static inline bool time_limit_exceeded(int max_seconds, const std::chrono::steady_clock::time_point& start) {
+        auto now = std::chrono::steady_clock::now();
+        double elapsed = std::chrono::duration<double>(now - start).count();
+        return elapsed >= max_seconds;
+    }
+
     // Búsqueda local con memoria Tabu (1-0 + 1-1, con prohibición de remover vértices recién agregados)
     // - tabu_len: tamaño de la lista tabu (tenencia)
     // - max_seconds: tope duro de tiempo
-    void local_search_tabu(std::vector<int>& current_solution,
-                           GraphMatrix& graph,
-                           int tabu_len,
-                           double max_seconds)
-    {
+    void local_search_tabu(
+        std::vector<int>& current_solution,
+        GraphMatrix& graph,
+        int tabu_len,
+        double max_seconds
+    ) {
         const int n = graph.get_num_vertices();
 
         // Estado inicial: asegurar pertenencia rápida y maximalidad por 1-0
         std::vector<char> inS(n, false);
         inS.shrink_to_fit();
-        for (int u : current_solution) if (u >= 0 && u < n) inS[u] = true;
+        for (int u : current_solution) {
+            if (u >= 0 && u < n) inS[u] = true; // Si es parte de una solucion es raro que pudieran existir vertices fuera del rango permitido [0,tamaño grafo[
+        }
+
         greedy_fill_10(current_solution, inS, graph);
 
         std::vector<int> best = current_solution; // mejor histórico
@@ -72,15 +98,12 @@ namespace meta_taboo{
         auto start = std::chrono::steady_clock::now();
 
         while (true) {
-            // Control de tiempo
-            auto now = std::chrono::steady_clock::now();
-            double elapsed = std::chrono::duration<double>(now - start).count();
-            if (elapsed >= max_seconds) break;
+            if (time_limit_exceeded(max_seconds, start)) break;
 
             // Intento 1-0 directo (crecer si es posible)
             bool grew = false;
             for (int v = 0; v < n; ++v) {
-                if (!inS[v] && can_add_fast(v, current_solution, inS, graph)) {
+                if (can_add(v, current_solution, inS, graph)) {
                     current_solution.push_back(v);
                     inS[v] = true;
                     push_tabu(v); // lo acabamos de agregar; evita sacarlo de inmediato
@@ -119,7 +142,10 @@ namespace meta_taboo{
 
                 // eliminar conflict_u
                 for (size_t i = 0; i < cand.size(); ++i) {
-                    if (cand[i] == conflict_u) { cand[i] = cand.back(); cand.pop_back(); break; }
+                    if (cand[i] == conflict_u) {
+                        cand[i] = cand.back(); cand.pop_back();
+                        break;
+                    }
                 }
                 inCand[conflict_u] = false;
                 // agregar v
@@ -173,22 +199,13 @@ namespace meta_taboo{
             if (u >= 0 && u < n) in_solution[u] = true;
         }
 
-        auto can_add = [&](int v) -> bool {
-            if (v < 0 || v >= n) return false;
-            if (in_solution[v]) return false;
-            for (int u : current_solution) {
-                if (graph.has_edge(u, v)) return false;
-            }
-            return true;
-        };
-
         bool improved = true;
         while (improved) {
             improved = false;
 
             // --- Movimiento 1-0: intentar agregar un vértice factible ---
             for (int v = 0; v < n; ++v) {
-                if (!in_solution[v] && can_add(v)) {
+                if (can_add(v, current_solution, in_solution, graph)) {
                     current_solution.push_back(v);
                     in_solution[v] = true;
                     improved = true;
@@ -247,14 +264,14 @@ namespace meta_taboo{
         auto start = std::chrono::steady_clock::now();
 
         while (true) {
-            auto now = std::chrono::steady_clock::now();
-            double elapsed_seconds = std::chrono::duration<double>(now - start).count();
+            if (time_limit_exceeded(max_seconds, start)) break;
 
-            if (elapsed_seconds >= max_seconds)
-                break;
-
-            local_search_tabu(initial_solution, graph, /*tabu_len=*/std::max(5, graph.get_num_vertices()/100),
-                              /*max_seconds=*/max_seconds);
+            local_search_tabu(
+                initial_solution,
+                graph,
+                /*tabu_len=*/std::max(5, graph.get_num_vertices()/100),
+                /*max_seconds=*/max_seconds
+            );
         }
 
         // Por ahora devolvemos la solución inicial (ajusta al final)

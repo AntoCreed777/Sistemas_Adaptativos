@@ -6,10 +6,12 @@ class GraphMatrix;
 
 namespace meta_taboo {
 
-    void local_search_tabu(std::vector<int>& current_solution,
-                        GraphMatrix& graph,
-                        int tabu_len,
-                        double max_seconds);
+    void local_search_tabu(
+        std::vector<int>& current_solution,
+        GraphMatrix& graph,
+        int tabu_len,
+        double max_seconds
+    );
 
     void local_search(std::vector<int>& current_solution, GraphMatrix& graph);
 
