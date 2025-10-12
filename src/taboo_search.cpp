@@ -1,11 +1,12 @@
-#include "taboo_search.h"
-
 #include <vector>
 #include <deque>
 #include <chrono>
 #include <unordered_set>
+#include "greedy.h"
+#include "taboo_search.h"
 #include "greedy_random.h"
 #include "graph_matrix.h"
+
 
 namespace meta_taboo{
 
@@ -20,11 +21,7 @@ namespace meta_taboo{
         const std::vector<char>& inS,
         const GraphMatrix& g
     ) {
-        if (
-            v < 0||
-            v >= g.get_num_vertices() ||
-            inS[v]
-        ) return false;
+        if (v < 0 || v >= g.get_num_vertices() || inS[v]) return false;
         for (int u : S) if (g.has_edge(u, v)) return false;
         return true;
     }
@@ -53,15 +50,9 @@ namespace meta_taboo{
         }
     }
 
-    static inline bool time_limit_exceeded(int max_seconds, const std::chrono::steady_clock::time_point& start) {
-        auto now = std::chrono::steady_clock::now();
-        double elapsed = std::chrono::duration<double>(now - start).count();
-        return elapsed >= max_seconds;
-    }
-
-    // Búsqueda local con memoria Tabu (1-0 + 1-1, con prohibición de remover vértices recién agregados)
+    // Búsqueda local con memoria Tabu (1-0 + 1-1, con prohibición simétrica de agregados/removidos)
     // - tabu_len: tamaño de la lista tabu (tenencia)
-    // - max_seconds: tope duro de tiempo
+    // - max_seconds: tope duro de tiempo (deadline interno)
     void local_search_tabu(
         std::vector<int>& current_solution,
         GraphMatrix& graph,
@@ -72,93 +63,102 @@ namespace meta_taboo{
 
         // Estado inicial: asegurar pertenencia rápida y maximalidad por 1-0
         std::vector<char> inS(n, false);
-        inS.shrink_to_fit();
         for (int u : current_solution) {
-            if (u >= 0 && u < n) inS[u] = true; // Si es parte de una solucion es raro que pudieran existir vertices fuera del rango permitido [0,tamaño grafo[
+            if (u >= 0 && u < n) inS[u] = true;
         }
-
         greedy_fill_10(current_solution, inS, graph);
 
         std::vector<int> best = current_solution; // mejor histórico
 
-        // Lista tabu: prohibimos REMOVER vértices recientemente AGREGADOS
-        std::deque<int> tabu_fifo;
-        std::unordered_set<int> tabu_remove;
+        // Tabu simétrico: no remover los recién agregados, ni re-agregar los recién removidos
+        std::deque<int> tabu_added_fifo, tabu_removed_fifo;
+        std::unordered_set<int> tabu_cant_remove; // vértices recién agregados
+        std::unordered_set<int> tabu_cant_add;    // vértices recién removidos
 
-        auto push_tabu = [&](int v_added) {
-            // v_added pasa a estar prohibido para removerlo durante 'tabu_len' pasos
-            tabu_fifo.push_back(v_added);
-            tabu_remove.insert(v_added);
-            if ((int)tabu_fifo.size() > tabu_len) {
-                int old = tabu_fifo.front(); tabu_fifo.pop_front();
-                tabu_remove.erase(old);
+        auto push_tabu_add = [&](int v_added) {
+            tabu_added_fifo.push_back(v_added);
+            tabu_cant_remove.insert(v_added);
+            if ((int)tabu_added_fifo.size() > tabu_len) {
+                int old = tabu_added_fifo.front(); tabu_added_fifo.pop_front();
+                tabu_cant_remove.erase(old);
+            }
+        };
+        auto push_tabu_remove = [&](int v_removed) {
+            tabu_removed_fifo.push_back(v_removed);
+            tabu_cant_add.insert(v_removed);
+            if ((int)tabu_removed_fifo.size() > tabu_len) {
+                int old = tabu_removed_fifo.front(); tabu_removed_fifo.pop_front();
+                tabu_cant_add.erase(old);
             }
         };
 
-        auto start = std::chrono::steady_clock::now();
+        // Deadline único interno
+        const auto deadline = std::chrono::steady_clock::now() + std::chrono::duration<double>(max_seconds);
+        auto time_up = [&](){ return std::chrono::steady_clock::now() >= deadline; };
 
-        while (true) {
-            if (time_limit_exceeded(max_seconds, start)) break;
-
+        while (!time_up()) {
             // Intento 1-0 directo (crecer si es posible)
             bool grew = false;
             for (int v = 0; v < n; ++v) {
-                if (can_add(v, current_solution, inS, graph)) {
-                    current_solution.push_back(v);
-                    inS[v] = true;
-                    push_tabu(v); // lo acabamos de agregar; evita sacarlo de inmediato
-                    grew = true;
-                    if ((int)current_solution.size() > (int)best.size()) best = current_solution;
-                    break; // reiniciar ciclo
-                }
+                if (!can_add(v, current_solution, inS, graph)) continue;
+                // Regla Tabu: no re-agregar recién removidos, salvo aspiración por BEST
+                bool is_tabu_add = (tabu_cant_add.find(v) != tabu_cant_add.end());
+                bool allow_by_asp = ((int)current_solution.size() + 1 > (int)best.size());
+                if (is_tabu_add && !allow_by_asp) continue;
+
+                current_solution.push_back(v);
+                inS[v] = true;
+                push_tabu_add(v);
+                grew = true;
+                if ((int)current_solution.size() > (int)best.size()) best = current_solution;
+                break; // reiniciar ciclo
             }
             if (grew) continue;
 
-            // Si no crecimos por 1-0, probamos 1-1 con aspiración
+            // Si no crecimos por 1-0, probamos 1-1 con aspiración (mejora incumbente o best)
             int chosen_u = -1, chosen_v = -1;
             int best_neighbor_size = -1;
             std::vector<int> best_neighbor;
             std::vector<char> best_inS;
 
             for (int v = 0; v < n; ++v) {
-                if (inS[v]) continue;
+                if (inS[v]) continue; // sólo para v fuera de S
 
                 // Contar conflictos de v con S
                 int conflicts = 0, conflict_u = -1;
                 for (int u : current_solution) {
                     if (graph.has_edge(u, v)) {
                         ++conflicts; conflict_u = u;
-                        if (conflicts > 1) break;
+                        if (conflicts > 1) break; // 1-1 requiere exactamente un conflicto
                     }
                 }
-                if (conflicts != 1) continue; // 1-1 requiere exactamente un conflicto
+                if (conflicts != 1) continue;
 
-                // Regla Tabu: prohibido remover un vértice recientemente agregado (salvo aspiración)
-                bool is_tabu = (tabu_remove.find(conflict_u) != tabu_remove.end());
+                // Reglas Tabu
+                bool tabu_on_remove = (tabu_cant_remove.find(conflict_u) != tabu_cant_remove.end());
+                bool tabu_on_add    = (tabu_cant_add.find(v)        != tabu_cant_add.end());
 
-                // Construimos vecino: swap u -> v
+                // Construimos vecino: swap u -> v y rellenamos 1-0
                 std::vector<int> cand = current_solution;
                 std::vector<char> inCand = inS;
 
                 // eliminar conflict_u
                 for (size_t i = 0; i < cand.size(); ++i) {
-                    if (cand[i] == conflict_u) {
-                        cand[i] = cand.back(); cand.pop_back();
-                        break;
-                    }
+                    if (cand[i] == conflict_u) { cand[i] = cand.back(); cand.pop_back(); break; }
                 }
                 inCand[conflict_u] = false;
                 // agregar v
                 cand.push_back(v);
                 inCand[v] = true;
 
-                // Rellenar con 1-0 (posibles desbloqueos tras el swap)
                 greedy_fill_10(cand, inCand, graph);
 
                 int cand_size = (int)cand.size();
-                bool aspiration = (cand_size > (int)best.size());
+                bool improves_incumbent = cand_size > (int)current_solution.size();
+                bool improves_best      = cand_size > (int)best.size();
+                bool allow_by_aspiration = improves_incumbent || improves_best;
 
-                if (!is_tabu || aspiration) {
+                if (!(tabu_on_remove || tabu_on_add) || allow_by_aspiration) {
                     if (cand_size > best_neighbor_size) {
                         best_neighbor_size = cand_size;
                         best_neighbor = std::move(cand);
@@ -172,14 +172,13 @@ namespace meta_taboo{
             // Si no encontramos swap válido, estamos estancados: terminar
             if (chosen_u == -1) break;
 
-            // Aceptar mejor vecino y actualizar Tabu (marcamos v como "no remover")
+            // Aceptar mejor vecino y actualizar Tabu (marcamos v como "no remover" y u como "no re-agregar")
             current_solution = std::move(best_neighbor);
             inS = std::move(best_inS);
-            push_tabu(chosen_v);
+            push_tabu_add(chosen_v);
+            push_tabu_remove(chosen_u);
 
-            if ((int)current_solution.size() > (int)best.size()) {
-                best = current_solution;
-            }
+            if ((int)current_solution.size() > (int)best.size()) best = current_solution;
         }
 
         // Devolver el mejor histórico alcanzado
@@ -194,7 +193,6 @@ namespace meta_taboo{
 
         // Marcador rápido de pertenencia a la solución
         std::vector<char> in_solution(n, false);
-        in_solution.shrink_to_fit(); // no "raro"; sólo evitar capacidad extra
         for (int u : current_solution) {
             if (u >= 0 && u < n) in_solution[u] = true;
         }
@@ -254,27 +252,17 @@ namespace meta_taboo{
 
 
     std::vector<int> taboo_search(GraphMatrix& graph, int length_taboo_list, int max_seconds){
-        GraphMatrix copy_graph = graph;
+        // Semilla inicial: greedy determinista (puedes cambiar a greedy_random si prefieres diversificar)
+        std::vector<int> solution = greedy::solve_misp(graph);
 
-        std::vector<int> initial_solution =  greedy_random::solve_misp(copy_graph);
-        std::deque<int> taboo_next_elimination(length_taboo_list, -1);
-        std::unordered_set<int> taboo_list;
+        // Ejecutamos una sola corrida con deadline interno; usamos el largo Tabu entregado
+        local_search_tabu(
+            solution,
+            graph,
+            /*tabu_len=*/length_taboo_list,
+            /*max_seconds=*/(double)max_seconds
+        );
 
-
-        auto start = std::chrono::steady_clock::now();
-
-        while (true) {
-            if (time_limit_exceeded(max_seconds, start)) break;
-
-            local_search_tabu(
-                initial_solution,
-                graph,
-                /*tabu_len=*/std::max(5, graph.get_num_vertices()/100),
-                /*max_seconds=*/max_seconds
-            );
-        }
-
-        // Por ahora devolvemos la solución inicial (ajusta al final)
-        return initial_solution;
+        return solution;
     }
 }
