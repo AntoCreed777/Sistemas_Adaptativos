@@ -3,6 +3,7 @@ use std::{fs, process::Command, thread, sync::{Arc, Mutex}, io::Write};
 const GRAPH_DIR: &str = "../grafos/";
 const EXECUTABLE: &str = "../Taboo.out";
 const OUTPUT_CSV: &str = "../experiments/results/experiments_taboo.csv";
+const TIME_LIMIT: &str = "3";
 const N_REPS: usize = 50;
 const MAX_THREADS: usize = 5; // Usa todos los núcleos menos uno
 const TABU_LENS: [usize; 4] = [0, 5, 20, 100];
@@ -19,7 +20,7 @@ fn main() {
         .truncate(true)
         .open(OUTPUT_CSV)
         .expect("No se pudo crear/abrir el archivo CSV");
-    writeln!(file_csv_raw, "respuesta;tiempo;densidad;vertices").expect("No se pudo escribir el encabezado");
+    writeln!(file_csv_raw, "respuesta;tiempo;taboo_len;densidad;vertices").expect("No se pudo escribir el encabezado");
     let file_csv = Arc::new(Mutex::new(file_csv_raw));
 
     let mut handles = vec![];
@@ -57,7 +58,7 @@ fn main() {
                 handles.push(thread::spawn(move || {
                     let output = Command::new(EXECUTABLE)
                         .arg("--input").arg(&graph_path)
-                        .arg("--time_limit").arg("3")
+                        .arg("--time_limit").arg(TIME_LIMIT)
                         .arg("--tabu_len").arg(tabu_len.to_string())
                         .output()
                         .expect("Fallo al ejecutar el experimento");
@@ -85,7 +86,7 @@ fn main() {
 
                     // Escribe la salida en el archivo CSV, agregando n y c
                     let mut file_csv = file_csv.lock().unwrap();
-                    writeln!(file_csv, "{};{};{}", result.trim(), c, n).expect("No se pudo escribir en el CSV");
+                    writeln!(file_csv, "{};{};{};{}", result.trim(), tabu_len.to_string(), c, n).expect("No se pudo escribir en el CSV");
 
                     // Libera el semáforo al terminar
                     let mut active = semaphore.lock().unwrap();
