@@ -1,8 +1,4 @@
-use std::fs;
-use std::process::Command;
-use std::thread;
-use std::sync::{Arc, Mutex};
-use std::io::Write;
+use std::{fs, process::Command, thread, sync::{Arc, Mutex}, io::Write};
 
 const GRAPH_DIR: &str = "../grafos/";
 const EXECUTABLE: &str = "../Taboo.out";
@@ -40,13 +36,14 @@ fn main() {
         }
 
         let graph_path = path.to_str().unwrap().to_string();
-        let file_csv = Arc::clone(&file_csv);
-        let tabu_lens = TABU_LENS.to_vec();
-        let semaphore = Arc::clone(&semaphore);
-
-        for &tabu_len in &tabu_lens {
+        for &tabu_len in &TABU_LENS {
+            println!("Probando: archivo={}, tabu_len={}", graph_path, tabu_len);
             for _ in 0..N_REPS {
-                // Espera si hay demasiados hilos activos
+                let semaphore = Arc::clone(&semaphore);
+                let file_csv = Arc::clone(&file_csv);
+                let graph_path = graph_path.clone();
+
+                // Controla el número de hilos activos
                 loop {
                     let mut active = semaphore.lock().unwrap();
                     if *active < MAX_THREADS {
@@ -54,21 +51,16 @@ fn main() {
                         break;
                     }
                     drop(active);
-                    std::thread::sleep(std::time::Duration::from_millis(50));
+                    thread::sleep(std::time::Duration::from_millis(50));
                 }
 
-                let graph_path = graph_path.clone();
-                let file_csv = Arc::clone(&file_csv);
-                let semaphore = Arc::clone(&semaphore);
-
-                let handle = thread::spawn(move || {
+                handles.push(thread::spawn(move || {
                     let output = Command::new(EXECUTABLE)
                         .arg("--input").arg(&graph_path)
                         .arg("--time_limit").arg("3")
                         .arg("--tabu_len").arg(tabu_len.to_string())
                         .output()
                         .expect("Fallo al ejecutar el experimento");
-
                     let result = String::from_utf8_lossy(&output.stdout);
 
                     // Escribe la salida en el archivo CSV
@@ -78,8 +70,7 @@ fn main() {
                     // Libera el semáforo al terminar
                     let mut active = semaphore.lock().unwrap();
                     *active -= 1;
-                });
-                handles.push(handle);
+                }));
             }
         }
     }
