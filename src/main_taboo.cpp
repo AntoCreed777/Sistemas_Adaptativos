@@ -18,9 +18,14 @@ int main(int argc, char* argv[]) {
     try {
         cxxopts::Options options("Taboo", "Metaheuristica Tabu para MIS");
         options.add_options()
+            // Parametros default de la pauta
             ("i,input",   "Ruta de la instancia", cxxopts::value<std::string>())
+            ("t,time_limit", "Tiempo maximo en segundos", cxxopts::value<int>()->default_value("3"))
+
+            // Parametros propios de la metaheurística
             ("L,tabu_len","Largo de la lista tabu (default: max(5, n/100))", cxxopts::value<int>()->default_value("0"))
-            ("s,seconds", "Tiempo maximo en segundos (default: 3)", cxxopts::value<int>()->default_value("3"))
+
+            // Helper
             ("h,help",    "Mostrar ayuda");
 
         auto result = options.parse(argc, argv);
@@ -32,7 +37,7 @@ int main(int argc, char* argv[]) {
 
         const std::string instancia = result["input"].as<std::string>();
         int tabu_len  = result["tabu_len"].as<int>();   // si 0 => se calcula luego
-        int seconds   = result["seconds"].as<int>();
+        int seconds   = result["time_limit"].as<int>();
         if (seconds <= 0) seconds = 1;
 
         // Cargar grafo (mismo helper que en tu main_greedy)
