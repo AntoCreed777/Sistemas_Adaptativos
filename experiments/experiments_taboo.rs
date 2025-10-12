@@ -19,7 +19,7 @@ fn main() {
         .truncate(true)
         .open(OUTPUT_CSV)
         .expect("No se pudo crear/abrir el archivo CSV");
-    writeln!(file_csv_raw, "respuesta,tiempo,densidad,vertices").expect("No se pudo escribir el encabezado");
+    writeln!(file_csv_raw, "respuesta;tiempo;densidad;vertices").expect("No se pudo escribir el encabezado");
     let file_csv = Arc::new(Mutex::new(file_csv_raw));
 
     let mut handles = vec![];
@@ -63,9 +63,29 @@ fn main() {
                         .expect("Fallo al ejecutar el experimento");
                     let result = String::from_utf8_lossy(&output.stdout);
 
-                    // Escribe la salida en el archivo CSV
+                    // Extrae n* y c* del nombre de archivo
+                    let file_name = std::path::Path::new(&graph_path)
+                        .file_name()
+                        .and_then(|f| f.to_str())
+                        .unwrap_or("");
+                    let n = file_name.split('_')
+                        .find(|s| s.starts_with("n"))
+                        .and_then(|s| s[1..].parse::<usize>().ok())
+                        .unwrap_or(0);
+                    let c = file_name.split('_')
+                        .find_map(|s| {
+                            if let Some(idx) = s.find('c') {
+                                let dens = &s[idx+1..];
+                                dens.parse::<f64>().ok()
+                            } else {
+                                None
+                            }
+                        })
+                        .unwrap_or(0.0);
+
+                    // Escribe la salida en el archivo CSV, agregando n y c
                     let mut file_csv = file_csv.lock().unwrap();
-                    writeln!(file_csv, "{}", result.trim()).expect("No se pudo escribir en el CSV");
+                    writeln!(file_csv, "{};{};{}", result.trim(), c, n).expect("No se pudo escribir en el CSV");
 
                     // Libera el semáforo al terminar
                     let mut active = semaphore.lock().unwrap();
