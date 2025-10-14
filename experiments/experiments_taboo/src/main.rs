@@ -1,20 +1,25 @@
-use std::{fs, process::Command, thread, sync::{Arc, Mutex}, io::Write};
+use std::{
+    fs,
+    process::Command,
+    sync::{Arc, Mutex},
+    io::Write,
+};
+use threadpool::ThreadPool;
 
 const GRAPH_DIR: &str = "../grafos/";
 const EXECUTABLE: &str = "../Taboo.out";
 const OUTPUT_CSV: &str = "../experiments/results/experiments_taboo.csv";
 const TIME_LIMIT: &str = "3";
 const N_REPS: usize = 50;
-const MAX_THREADS: usize = 5; // Usa todos los núcleos menos uno
+const MAX_THREADS: usize = 3; // Número de threads simultáneos
 const TABU_LENS: [usize; 4] = [0, 5, 20, 100];
 
 fn main() {
-    //  Semaforo que controla cuántos hilos pueden estar activos al mismo tiempo
-    let semaphore = Arc::new(Mutex::new(0usize));
+    // Crea el ThreadPool
+    let pool = ThreadPool::new(MAX_THREADS);
 
-    let entries = fs::read_dir(GRAPH_DIR).expect("No se pudo leer el directorio de grafos");
-
-    let mut file_csv_raw = std::fs::OpenOptions::new()
+    // Abre el CSV
+    let mut file_csv_raw = fs::OpenOptions::new()
         .create(true)
         .write(true)
         .truncate(true)
@@ -23,9 +28,8 @@ fn main() {
     writeln!(file_csv_raw, "respuesta;tiempo;taboo_len;densidad;vertices").expect("No se pudo escribir el encabezado");
     let file_csv = Arc::new(Mutex::new(file_csv_raw));
 
-    let mut handles = vec![];
-
-    for entry in entries {
+    // Itera sobre los archivos
+    for entry in fs::read_dir(GRAPH_DIR).expect("No se pudo leer el directorio de grafos") {
         let path = entry.expect("Error leyendo archivo").path();
 
         if !path.is_file() {continue;}
@@ -37,34 +41,23 @@ fn main() {
         }
 
         let graph_path = path.to_str().unwrap().to_string();
+
         for &tabu_len in &TABU_LENS {
-            println!("Probando: archivo={}, tabu_len={}", graph_path, tabu_len);
             for _ in 0..N_REPS {
-                let semaphore = Arc::clone(&semaphore);
-                let file_csv = Arc::clone(&file_csv);
                 let graph_path = graph_path.clone();
+                let file_csv = Arc::clone(&file_csv);
 
-                // Controla el número de hilos activos
-                loop {
-                    let mut active = semaphore.lock().unwrap();
-                    if *active < MAX_THREADS {
-                        *active += 1;
-                        break;
-                    }
-                    drop(active);
-                    thread::sleep(std::time::Duration::from_millis(50));
-                }
-
-                handles.push(thread::spawn(move || {
+                // Envía la tarea al ThreadPool
+                pool.execute(move || {
                     let output = Command::new(EXECUTABLE)
                         .arg("--input").arg(&graph_path)
                         .arg("--time_limit").arg(TIME_LIMIT)
                         .arg("--tabu_len").arg(tabu_len.to_string())
                         .output()
                         .expect("Fallo al ejecutar el experimento");
+
                     let result = String::from_utf8_lossy(&output.stdout);
 
-                    // Extrae n* y c* del nombre de archivo
                     let file_name = std::path::Path::new(&graph_path)
                         .file_name()
                         .and_then(|f| f.to_str())
@@ -78,26 +71,20 @@ fn main() {
                             if let Some(idx) = s.find('c') {
                                 let dens = &s[idx+1..];
                                 dens.parse::<f64>().ok()
-                            } else {
-                                None
-                            }
+                            } else { None }
                         })
                         .unwrap_or(0.0);
 
-                    // Escribe la salida en el archivo CSV, agregando n y c
+                    // Escribe la salida en el CSV
                     let mut file_csv = file_csv.lock().unwrap();
-                    writeln!(file_csv, "{};{};{};{}", result.trim(), tabu_len.to_string(), c, n).expect("No se pudo escribir en el CSV");
-
-                    // Libera el semáforo al terminar
-                    let mut active = semaphore.lock().unwrap();
-                    *active -= 1;
-                }));
+                    writeln!(file_csv, "{};{};{};{}", result.trim(), tabu_len, c, n)
+                        .expect("No se pudo escribir en el CSV");
+                });
             }
         }
     }
 
-    // Espera a que todos los threads terminen
-    for handle in handles {
-        handle.join().unwrap();
-    }
+    // Espera a que todas las tareas terminen
+    pool.join();
+    println!("Todos los experimentos han terminado, Kasuma. Tu CPU puede descansar ahora. 💥");
 }

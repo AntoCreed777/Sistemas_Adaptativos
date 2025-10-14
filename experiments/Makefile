@@ -1,14 +1,8 @@
-EXPERIMENT=experiments_taboo
-SRC=$(EXPERIMENT).rs
-OUT=$(EXPERIMENT).out
+all: 
+	cargo build --release --manifest-path experiments_taboo/Cargo.toml
 
-all: $(OUT)
-
-$(OUT): $(SRC)
-	rustc $(SRC) -o $(OUT)
-
-run: $(OUT)
-	./$(OUT)
+run:
+	cargo run --release --manifest-path experiments_taboo/Cargo.toml
 
 clean:
-	rm -f $(OUT)
+	cargo clean --manifest-path experiments_taboo/Cargo.toml

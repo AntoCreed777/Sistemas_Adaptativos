@@ -11,3 +11,5 @@ build/*.o
 */build/*.o
 .cache/*
 compile_commands.json
+*.lock
+target/
