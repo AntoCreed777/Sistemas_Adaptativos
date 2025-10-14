@@ -13,3 +13,6 @@ build/*.o
 compile_commands.json
 *.lock
 target/
+.env/
+*.pdm-python
+__pycache__/
