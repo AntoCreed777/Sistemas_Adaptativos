@@ -57,6 +57,10 @@ fn main() {
                         .expect("Fallo al ejecutar el experimento");
 
                     let result = String::from_utf8_lossy(&output.stdout);
+                    let error = String::from_utf8_lossy(&output.stderr);
+                    if !error.trim().is_empty() {
+                        eprintln!("Error en {}: {}", graph_path, error);
+                    }
 
                     let file_name = std::path::Path::new(&graph_path)
                         .file_name()
