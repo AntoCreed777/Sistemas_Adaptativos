@@ -56,7 +56,7 @@ int main(int argc, char* argv[]) {
         long long ms = std::chrono::duration_cast<std::chrono::milliseconds>(t1 - t0).count();
 
         // MISMA salida que tu greedy_main: tamaño;milisegundos
-        std::cout << sol.size() << ';' << ms << '\n';
+        std::cout << sol.size() << ';' << ms << ";" << "F\n";
         return 0;
 
     } catch (const cxxopts::exceptions::exception& e) {

@@ -2,6 +2,7 @@
 #include <deque>
 #include <chrono>
 #include <unordered_set>
+#include <random>
 #include "greedy.h"
 #include "taboo_search.h"
 #include "greedy_random.h"
@@ -59,6 +60,7 @@ namespace meta_taboo{
         int tabu_len,
         double max_seconds
     ) {
+        std::mt19937 rng(std::random_device{}());
         const int n = graph.get_num_vertices();
 
         // Estado inicial: asegurar pertenencia rápida y maximalidad por 1-0
@@ -93,7 +95,8 @@ namespace meta_taboo{
         };
 
         // Deadline único interno
-        const auto deadline = std::chrono::steady_clock::now() + std::chrono::duration<double>(max_seconds);
+        const auto start_time = std::chrono::steady_clock::now();
+        const auto deadline = start_time + std::chrono::duration<double>(max_seconds);
         auto time_up = [&](){ return std::chrono::steady_clock::now() >= deadline; };
 
         while (!time_up()) {
@@ -110,7 +113,12 @@ namespace meta_taboo{
                 inS[v] = true;
                 push_tabu_add(v);
                 grew = true;
-                if ((int)current_solution.size() > (int)best.size()) best = current_solution;
+                if ((int)current_solution.size() > (int)best.size()){
+                        best = current_solution;
+                        auto now = std::chrono::steady_clock::now();
+                        long long elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - start_time).count();
+                        std::cout << best.size() << ";" << elapsed << ";" << "A\n"; 
+                } 
                 break; // reiniciar ciclo
             }
             if (grew) continue;
@@ -169,8 +177,51 @@ namespace meta_taboo{
                 }
             }
 
-            // Si no encontramos swap válido, estamos estancados: terminar
-            if (chosen_u == -1) break;
+
+        // Si no encontramos swap válido, estamos estancados: aplicar diversificación por perturbación
+        if (chosen_u == -1) {
+            // ¿Hay algún movimiento 1-0 o 1-1 disponible?
+            auto has_10_or_11 = [&]() -> bool {
+                // 1-0 disponible
+                for (int v = 0; v < n; ++v) {
+                    if (can_add(v, current_solution, inS, graph)) return true;
+                }
+                // 1-1 disponible (v con exactamente un conflicto en S)
+                for (int v = 0; v < n; ++v) {
+                    if (inS[v]) continue;
+                    int conflicts = 0, conflict_u = -1;
+                    for (int u : current_solution) {
+                        if (graph.has_edge(u, v)) {
+                            ++conflicts; conflict_u = u;
+                            if (conflicts > 1) break;
+                        }
+                    }
+                    if (conflicts == 1) return true;
+                }
+                return false;
+            };
+
+            // Remueve vértices aleatorios de la solución hasta que reaparezcan movimientos o se acabe el tiempo
+            while (!time_up() && !has_10_or_11()) {
+                if (current_solution.empty()) break; // nada más que quitar
+                std::uniform_int_distribution<int> dist(0, (int)current_solution.size() - 1);
+                int idx = dist(rng);
+                int u = current_solution[idx];
+
+                // quitar u de la solución
+                current_solution[idx] = current_solution.back();
+                current_solution.pop_back();
+                inS[u] = false;
+
+                // marca u como tabú para re-agregar inmediatamente (diversificación)
+                push_tabu_remove(u);
+            }
+            tabu_removed_fifo.clear();
+            tabu_cant_add.clear();
+
+            // reintentar el ciclo principal (intentará 1-0 y luego 1-1 de nuevo)
+            continue;
+        }
 
             // Aceptar mejor vecino y actualizar Tabu (marcamos v como "no remover" y u como "no re-agregar")
             current_solution = std::move(best_neighbor);
@@ -178,7 +229,12 @@ namespace meta_taboo{
             push_tabu_add(chosen_v);
             push_tabu_remove(chosen_u);
 
-            if ((int)current_solution.size() > (int)best.size()) best = current_solution;
+            if ((int)current_solution.size() > (int)best.size()){
+                best = current_solution;
+                auto now = std::chrono::steady_clock::now();
+                long long elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - start_time).count();
+                std::cout << best.size() << ";" << elapsed << ";" << "C\n";
+            } 
         }
 
         // Devolver el mejor histórico alcanzado
