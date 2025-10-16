@@ -10,12 +10,13 @@ namespace meta_taboo {
         std::vector<int>& current_solution,
         GraphMatrix& graph,
         int tabu_len,
-        double max_seconds
+        double max_seconds,
+        long long &ms
     );
 
     void local_search(std::vector<int>& current_solution, GraphMatrix& graph);
 
-    std::vector<int> taboo_search(GraphMatrix& graph, int length_taboo_list, int max_seconds);
+    std::vector<int> taboo_search(GraphMatrix& graph, int length_taboo_list, int max_seconds, long long &ms);
 
 } 
 

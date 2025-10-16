@@ -49,11 +49,11 @@ int main(int argc, char* argv[]) {
             tabu_len = std::max(5, n / 100);
         }
 
-        auto t0 = Clock::now();
-        std::vector<int> sol = meta_taboo::taboo_search(g, tabu_len, seconds);
-        auto t1 = Clock::now();
+        // Esta impresion podria ser innecesaria debido a que ya se imprime como respuesta temp
+        // dentro de taboo_search()
 
-        long long ms = std::chrono::duration_cast<std::chrono::milliseconds>(t1 - t0).count();
+        long long ms;
+        std::vector<int> sol = meta_taboo::taboo_search(g, tabu_len, seconds, ms);
 
         // MISMA salida que tu greedy_main: tamaño;milisegundos
         std::cout << sol.size() << ';' << ms << ";" << "F\n";

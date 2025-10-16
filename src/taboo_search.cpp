@@ -58,7 +58,8 @@ namespace meta_taboo{
         std::vector<int>& current_solution,
         GraphMatrix& graph,
         int tabu_len,
-        double max_seconds
+        double max_seconds,
+        long long &ms
     ) {
         std::mt19937 rng(std::random_device{}());
         const int n = graph.get_num_vertices();
@@ -116,8 +117,8 @@ namespace meta_taboo{
                 if ((int)current_solution.size() > (int)best.size()){
                         best = current_solution;
                         auto now = std::chrono::steady_clock::now();
-                        long long elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - start_time).count();
-                        std::cout << best.size() << ";" << elapsed << ";" << "A\n"; 
+                        ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - start_time).count();
+                        std::cout << best.size() << ";" << ms << ";" << "A\n"; 
                 } 
                 break; // reiniciar ciclo
             }
@@ -189,10 +190,10 @@ namespace meta_taboo{
                 // 1-1 disponible (v con exactamente un conflicto en S)
                 for (int v = 0; v < n; ++v) {
                     if (inS[v]) continue;
-                    int conflicts = 0, conflict_u = -1;
+                    int conflicts = 0;
                     for (int u : current_solution) {
                         if (graph.has_edge(u, v)) {
-                            ++conflicts; conflict_u = u;
+                            conflicts++;
                             if (conflicts > 1) break;
                         }
                     }
@@ -232,9 +233,9 @@ namespace meta_taboo{
             if ((int)current_solution.size() > (int)best.size()){
                 best = current_solution;
                 auto now = std::chrono::steady_clock::now();
-                long long elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - start_time).count();
-                std::cout << best.size() << ";" << elapsed << ";" << "C\n";
-            } 
+                ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - start_time).count();
+                std::cout << best.size() << ";" << ms << ";" << "C\n";
+            }
         }
 
         // Devolver el mejor histórico alcanzado
@@ -307,7 +308,7 @@ namespace meta_taboo{
     }
 
 
-    std::vector<int> taboo_search(GraphMatrix& graph, int length_taboo_list, int max_seconds){
+    std::vector<int> taboo_search(GraphMatrix& graph, int length_taboo_list, int max_seconds, long long &ms){
         // Semilla inicial: greedy determinista (puedes cambiar a greedy_random si prefieres diversificar)
         std::vector<int> solution = greedy::solve_misp(graph);
 
@@ -316,7 +317,8 @@ namespace meta_taboo{
             solution,
             graph,
             /*tabu_len=*/length_taboo_list,
-            /*max_seconds=*/(double)max_seconds
+            /*max_seconds=*/(double)max_seconds,
+            ms
         );
 
         return solution;
