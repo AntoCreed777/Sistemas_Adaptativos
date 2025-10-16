@@ -118,7 +118,7 @@ namespace meta_taboo{
                         best = current_solution;
                         auto now = std::chrono::steady_clock::now();
                         ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - start_time).count();
-                        std::cout << best.size() << ";" << ms << ";" << "A\n"; 
+                        std::cout << best.size() << ";" << ms << ";" << "A;\n"; 
                 } 
                 break; // reiniciar ciclo
             }
@@ -234,7 +234,7 @@ namespace meta_taboo{
                 best = current_solution;
                 auto now = std::chrono::steady_clock::now();
                 ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - start_time).count();
-                std::cout << best.size() << ";" << ms << ";" << "C\n";
+                std::cout << best.size() << ";" << ms << ";" << "C;\n";
             }
         }
 

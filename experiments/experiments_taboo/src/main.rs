@@ -9,10 +9,10 @@ use threadpool::ThreadPool;
 const GRAPH_DIR: &str = "../grafos/";
 const EXECUTABLE: &str = "../Taboo.out";
 const OUTPUT_CSV: &str = "../experiments/results/experiments_taboo.csv";
-const TIME_LIMIT: &str = "3";
-const N_REPS: usize = 50;
-const MAX_THREADS: usize = 3; // Número de threads simultáneos
-const TABU_LENS: [usize; 4] = [0, 5, 20, 100];
+const TIME_LIMIT: &str = "10";
+const N_REPS: usize = 30;
+const MAX_THREADS: usize = 4; // Número de threads simultáneos
+const TABU_LENS: [usize; 4] = [5, 20, 100, 500];
 
 fn main() {
     // Crea el ThreadPool
@@ -25,7 +25,7 @@ fn main() {
         .truncate(true)
         .open(OUTPUT_CSV)
         .expect("No se pudo crear/abrir el archivo CSV");
-    writeln!(file_csv_raw, "respuesta;tiempo;taboo_len;densidad;vertices").expect("No se pudo escribir el encabezado");
+    writeln!(file_csv_raw, "respuesta;tiempo;tipo_resultado;taboo_len;densidad;vertices").expect("No se pudo escribir el encabezado");
     let file_csv = Arc::new(Mutex::new(file_csv_raw));
 
     // Itera sobre los archivos
