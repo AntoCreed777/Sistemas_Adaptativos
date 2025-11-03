@@ -16,3 +16,5 @@ target/
 .env/
 *.pdm-python
 __pycache__/
+tunning_brkga/irace.log
+tunning_brkga/tunning_brkga.conf

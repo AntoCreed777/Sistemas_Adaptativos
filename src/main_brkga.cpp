@@ -18,7 +18,7 @@ int main(int argc, char* argv[]) {
         options.add_options()
             // Parametros default de la pauta
             ("i,input", "Ruta de la instancia", cxxopts::value<std::string>())
-            ("cf,config_file", "Ruta del archivo de configuracion", cxxopts::value<std::string>())
+            ("c,config_file", "Ruta del archivo de configuracion", cxxopts::value<std::string>())
             //("t,time_limit", "Tiempo maximo en segundos", cxxopts::value<int>()->default_value("10"))
             ("seed", "Semilla del generador de números aleatorios", cxxopts::value<int>()->default_value("1234"))
             ("num_threads", "Numero de Threads", cxxopts::value<int>()->default_value("1"))
@@ -79,18 +79,8 @@ int main(int argc, char* argv[]) {
         ////////////////////////////////////////
         
         const auto final_status = algorithm.run(control_params, &std::cout);
+        std::cout << final_status.best_fitness << std::endl;
 
-        std::cout
-            << "\nAlgorithm status: " << final_status
-            << "\n\nBest cost: " << final_status.best_fitness
-            << std::endl;
-
-
-        //long long ms;
-        // Algoritmo
-
-        // MISMA salida que tu greedy_main: tamaño;milisegundos
-        //std::cout << sol.size() << ';' << ms << ";" << "F\n";
         return 0;
 
     } catch (const cxxopts::exceptions::exception& e) {
