@@ -1,7 +1,7 @@
 library(irace)
 library(parallel)
 
-n_cores <- 1
+n_cores <- 6
 
 # ---------------------------
 # Definir parámetros
@@ -28,6 +28,11 @@ stall_offset "" i (100,500)
 '
 
 parameters <- readParameters(text = parameters_text)
+
+parameters$conditions <- list(
+  "num_elite_parents <= total_parents - 1",
+  "shaking_intensity_lower_bound < shaking_intensity_upper_bound"
+)
 
 # ---------------------------
 # Definir escenario

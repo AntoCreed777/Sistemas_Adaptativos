@@ -60,7 +60,7 @@ pr_distance_function_type KENDALLTAU
 EOL
 
 # Ejecutar el algoritmo
-score=$(../BRKGA.out -i "$instance_file" -c "$conf_file")
+score=$(../BRKGA.out -i "$instance_file" -c "$conf_file" | tail -n 1)
 
 # Esto debido a que MISP busca maximizar
 # pero IRACE minimiza
