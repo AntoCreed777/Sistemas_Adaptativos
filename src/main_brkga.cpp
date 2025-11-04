@@ -92,7 +92,7 @@ int main(int argc, char* argv[]) {
         ////////////////////////////////////////
         
         const auto final_status = algorithm.run(control_params, &std::cout);
-        std::cout << final_status.best_fitness << std::endl;
+        std::cout << final_status.best_fitness << ";" << final_status.current_time.count() << ";F" << std::endl;
 
         return 0;
 

@@ -3540,6 +3540,7 @@ BRKGA::AlgorithmStatus BRKGA_MP_IPR<Decoder>::run(
            betterThan(fitness, status.best_fitness)){
 
             status.current_time = std::chrono::system_clock::now() - start_time;
+            std::cout << fitness << ";" << status.current_time.count() << ";R" << std::endl;
             status.last_update_time = status.current_time;
 
             status.best_fitness = fitness;
@@ -3654,8 +3655,8 @@ BRKGA::AlgorithmStatus BRKGA_MP_IPR<Decoder>::run(
                     if(const auto fitness = getBestFitness();
                        betterThan(fitness, status.best_fitness)){
 
-                        status.current_time =
-                            std::chrono::system_clock::now() - start_time;
+                        status.current_time = std::chrono::system_clock::now() - start_time;
+                        std::cout << fitness << ";" << status.current_time.count() << ";R" << std::endl;
                         status.last_update_time = status.current_time;
 
                         status.best_fitness = fitness;
