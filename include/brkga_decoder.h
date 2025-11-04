@@ -15,7 +15,7 @@ public:
 
         // Orden de nodos según el valor del gen (descendente)
         std::vector<unsigned> idx(n);
-        for (unsigned i = 0; i < n; ++i) idx[i] = i;
+        std::iota(idx.begin(), idx.end(), 0);   // Rellena con 0, 1, 2, ...
 
         std::sort(idx.begin(), idx.end(),
                   [&](unsigned a, unsigned b){ return chromosome[a] > chromosome[b]; });

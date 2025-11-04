@@ -43,7 +43,6 @@ num_exchange_individuals $num_exchange_individuals
 shaking_type $shaking_type
 shaking_intensity_lower_bound $shaking_intensity_lower_bound
 shaking_intensity_upper_bound $shaking_intensity_upper_bound
-maximum_running_time $maximum_running_time
 exchange_interval $exchange_interval
 ipr_interval $ipr_interval
 shake_interval $shake_interval
@@ -60,7 +59,7 @@ pr_distance_function_type KENDALLTAU
 EOL
 
 # Ejecutar el algoritmo
-score=$(../BRKGA.out -i "$instance_file" -c "$conf_file" | tail -n 1)
+score=$(../BRKGA.out -i "$instance_file" -t "$maximum_running_time" -c "$conf_file" | tail -n 1)
 
 # Esto debido a que MISP busca maximizar
 # pero IRACE minimiza

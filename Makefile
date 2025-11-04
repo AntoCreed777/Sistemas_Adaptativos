@@ -62,7 +62,7 @@ $(TABOO): $(COMMON_OBJECTS) $(TABOO_OBJ) | $(OBJ_DIR)
 # Ejecutable Tabu: usa main_brkga.cpp
 $(BRKGA): 
 	@echo "Compilando BRKGA..."
-	@$(CXX) -o $(BRKGA) $(CXXFLAGS) src/main_brkga.cpp src/utils.cpp src/graph_matrix.cpp src/graph_list.cpp -I ./libs/brkga_mp_ipr_cpp/brkga_mp_ipr -std=c++20
+	@$(CXX) -o $(BRKGA) $(CXXFLAGS) src/main_brkga.cpp src/utils.cpp src/graph_matrix.cpp src/graph_list.cpp src/greedy_random.cpp src/greedy.cpp -I ./libs/brkga_mp_ipr_cpp/brkga_mp_ipr -std=c++20
 
 # Regla para compilar los archivos objeto y guardarlos en build/
 $(OBJ_DIR)/%.o: ./src/%.cpp | $(OBJ_DIR)
