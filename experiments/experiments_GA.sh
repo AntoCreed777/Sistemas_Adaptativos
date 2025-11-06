@@ -11,7 +11,7 @@ OUT_DIR="${WORKDIR}/experiments/results"
 OUT_CSV="${OUT_DIR}/experiments_brkga_10s.csv"
 EXE_POP="${WORKDIR}/BRKGA.out"
 CONF_FILE="${WORKDIR}/brkga.conf"
-TIME_LIMIT=1
+TIME_LIMIT=10
 
 # --- Configuración de dataset ------------------------------------------------
 N_LIST=(1000 2000 3000)

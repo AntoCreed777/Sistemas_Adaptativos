@@ -1,4 +1,5 @@
 #!/bin/bash
+CONF_DIR=tmp_conf
 
 # ---------------------------
 # Recibir argumentos
@@ -26,7 +27,9 @@ stall_offset=${18}
 # ---------------------------
 # Archivo de configuración temporal
 # ---------------------------
-conf_file="tunning_brkga_${seed}_$$.conf"
+mkdir -p ${CONF_DIR}
+
+conf_file="${CONF_DIR}/tunning_brkga_${seed}_$$.conf"
 
 cat > "$conf_file" <<EOL
 population_size $population_size
@@ -58,6 +61,9 @@ EOL
 
 # Ejecutar el algoritmo
 score=$(../BRKGA.out -i "$instance_file" -t 30 -c "$conf_file" | tail -n 1 | cut -d';' -f1)
+
+# Borrar el archivo temporal
+rm -f "$conf_file"
 
 # Esto debido a que MISP busca maximizar
 # pero IRACE minimiza
