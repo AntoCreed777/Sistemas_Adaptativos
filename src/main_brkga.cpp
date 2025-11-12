@@ -20,7 +20,7 @@ int main(int argc, char* argv[]) {
         options.add_options()
             // Parametros default de la pauta
             ("i,input", "Ruta de la instancia", cxxopts::value<std::string>())
-            ("c,config_file", "Ruta del archivo de configuracion", cxxopts::value<std::string>())
+            ("c,config_file", "Ruta del archivo de configuracion", cxxopts::value<std::string>()->default_value("brkga_default.conf"))
             ("t,time_limit", "Tiempo maximo en segundos", cxxopts::value<int>()->default_value("10"))
             ("seed", "Semilla del generador de números aleatorios", cxxopts::value<int>()->default_value("1234"))
             ("num_threads", "Numero de Threads", cxxopts::value<int>()->default_value("1"))
