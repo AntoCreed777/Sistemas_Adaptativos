@@ -82,12 +82,22 @@ Esto compilará y ejecutará el lanzador de Rust, generando múltiples procesos 
 ```
 results/experiments_taboo.csv
 ```
+## 4. Experimento BRKGA
+
+**Archivo:** `experiments_GA.sh`
+
+Para ejecutarlo:
+
+```bash
+./experiments_GA.sh
+```
+Los resultados se guardarán en `results/` con el nombre `experiments_BRKGA_60s.csv`.
 
 ---
 
 ## Notas finales
 
-* Todos los scripts y programas están configurados para ejecutarse desde la carpeta `experiments/`.
+* Todos los scripts y programas están configurados para ejecutarse desde la carpeta `experiments/` a excepcion de el experimento de `BRKGA`, el cual se debe de ejecutar desde la carpeta raiz.
 * No es necesario modificar rutas internas ni acceder manualmente a las subcarpetas.
 * Los resultados se sobrescribirán en caso de repetir un experimento con el mismo nombre de salida.
 
