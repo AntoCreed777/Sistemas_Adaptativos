@@ -43,6 +43,10 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************/
+#include "taboo_search.h"
+#include "brkga_decoder_graph.h"
+#include "brkga_encoder.h"
+#include "graph_matrix.h"
 
 #ifndef BRKGA_MP_IPR_HPP_
 #define BRKGA_MP_IPR_HPP_
@@ -2106,6 +2110,13 @@ public:
         const ControlParams& control_params,
         std::ostream* logger = &std::cout
     );
+
+    AlgorithmStatus run2(
+        const ControlParams& control_params,
+        std::ostream* logger = &std::cout,
+        GraphMatrix& graph,
+        BRKGADecoderGraph& decoder_graph
+    );
     ///@}
 
     /** \name Evolution */
@@ -3791,6 +3802,431 @@ BRKGA::AlgorithmStatus BRKGA_MP_IPR<Decoder>::run(
                 << std::endl;
             }
         } // End of reset.
+
+        // Check the stopping cirteria.
+        run &= !local_stopping_criteria();
+    }
+
+    status.current_time = std::chrono::system_clock::now() - start_time;
+    return status;
+}
+
+template <class Decoder>
+BRKGA::AlgorithmStatus BRKGA_MP_IPR<Decoder>::run2(
+        const ControlParams& control_params,
+        std::ostream* logger,
+        GraphMatrix& graph,
+        BRKGADecoderGraph& decoder_graph
+    ) {
+
+    if(!initialized)
+        initialize();
+
+    if(control_params.ipr_interval > 0 && !params.pr_distance_function) {
+        std::stringstream ss;
+        ss << __PRETTY_FUNCTION__ << ", line " << __LINE__ << ": "
+           << "IPR is active (ipr_interval = " << control_params.ipr_interval
+           << ") but the distance function is not set.";
+        throw std::runtime_error(ss.str());
+    }
+
+    if(control_params.shake_interval > 0) {
+        if(params.shaking_type == ShakingType::CUSTOM && !params.custom_shaking) {
+            std::stringstream ss;
+            ss << __PRETTY_FUNCTION__ << ", line " << __LINE__ << ": "
+               << "Shaking is active (shake_interval = "
+               << control_params.shake_interval << ") and it is set as 'CUSTOM'. "
+               << "However the custom shaking procedure was not supplied.";
+            throw std::runtime_error(ss.str());
+        }
+
+        if(params.shaking_type != ShakingType::CUSTOM) {
+            if((params.shaking_intensity_lower_bound < 1e-6 ||
+                params.shaking_intensity_lower_bound > 1) ||
+               (params.shaking_intensity_upper_bound < 1e-6 ||
+                params.shaking_intensity_upper_bound > 1) ||
+               (params.shaking_intensity_lower_bound >
+                params.shaking_intensity_upper_bound)) {
+
+                std::stringstream ss;
+                ss << __PRETTY_FUNCTION__ << ", line " << __LINE__ << ": "
+                   << "Shaking is active (shake_interval = "
+                   << control_params.shake_interval << ") and it is set as '"
+                   << params.shaking_type << "'. "
+                   << "However, the intensity bounds are out of range. "
+                      "Should be (0.0, 1.0] and 'shaking_intensity_lower_bound "
+                      "<= shaking_intensity_upper_bound' but "
+                      "shaking_intensity_lower_bound = "
+                   << params.shaking_intensity_lower_bound
+                   << " and shaking_intensity_upper_bound = "
+                   << params.shaking_intensity_upper_bound;
+                throw std::runtime_error(ss.str());
+            }
+        }
+    }
+
+    AlgorithmStatus status;
+    status.best_fitness = (
+        optimization_sense == Sense::MINIMIZE?
+        BRKGA::FITNESS_T_MAX :
+        BRKGA::FITNESS_T_MIN
+    );
+
+    status.current_iteration = 0;
+    status.last_update_iteration = 0;
+    status.largest_iteration_offset = 0;
+
+    // This is the shaking multiplier, that generates a random number
+    // within the bounds given by the user. Only used during shaking.
+    auto random_shaking_multiplier = std::bind(
+        std::uniform_real_distribution<double>(
+            params.shaking_intensity_lower_bound,
+            params.shaking_intensity_upper_bound
+        ),
+        rng_per_thread[0]   // We just use the first RNG.
+    );
+
+    // If using shaking, we reserve some space for the indices of
+    // to-be-decoded chromosomes (num. of pops X size of a pop)
+    std::vector<std::pair<unsigned, unsigned>> shaken {};
+    if(control_params.shake_interval > 0)
+        shaken.reserve(current.size() * current[0]->chromosomes.size());
+
+    // We add expiration time and maximum stalled iterations to the user's
+    // stopping criteria. Note that if it returns true, we stop the optimization.
+    if(!stopping_criteria) {
+        if(logger) {
+            *logger
+            << "Custom stopping criteria not supplied by the user. "
+            << "Using max. time = " << control_params.maximum_running_time
+            << " and max. stall_offset = " << control_params.stall_offset
+            << std::endl;
+        }
+        stopping_criteria = [](const AlgorithmStatus& /*not used*/) {
+            return false;
+        };
+    }
+    else
+    if(logger) {
+        *logger
+        << "Using custom stopping supplied by the user and "
+        << "max. time = " << control_params.maximum_running_time
+        << " and max. stall_offset = " << control_params.stall_offset
+        << std::endl;
+    }
+
+    if(logger) {
+        *logger
+        << "Using " << max_threads << " threads for decoding" << std::endl;
+    }
+
+    const auto start_time = std::chrono::system_clock::now();
+    bool run = true;
+
+    const auto local_stopping_criteria = [&]() {
+        return
+            (std::chrono::duration_cast<std::chrono::seconds>
+             (std::chrono::system_clock::now() - start_time) >=
+             control_params.maximum_running_time)
+            ||
+            (control_params.stall_offset > 0 &&
+             status.stalled_iterations == control_params.stall_offset)
+            ||
+            stopping_criteria(status);
+    };
+
+    bool optmizado = false;
+
+    while(run) {
+        status.current_iteration++;
+
+        //----------------------------------------//
+        // Run one iteration of the genetic algorithm.
+        //----------------------------------------//
+        evolve();
+
+        // Number of iterations without improvement.
+        status.stalled_iterations =
+            status.current_iteration - status.last_update_iteration;
+
+        // Check for improvements in the best solution.
+        if(const auto fitness = getBestFitness();
+           betterThan(fitness, status.best_fitness)){
+
+            status.current_time = std::chrono::system_clock::now() - start_time;
+            std::cout << fitness << ";" << status.current_time.count() << ";R" << std::endl;
+            status.last_update_time = status.current_time;
+
+            status.best_fitness = fitness;
+            status.best_chromosome = getBestChromosome();
+            status.last_update_iteration = status.current_iteration;
+
+            if(status.largest_iteration_offset < status.stalled_iterations)
+                status.largest_iteration_offset = status.stalled_iterations;
+
+            status.stalled_iterations = 0;
+
+            for(auto& callback : info_callbacks)
+                run &= callback(status);
+        }
+
+        // NOTE: we test the stoping criteria several times because some one
+        // them might be time-based criterium, and therefore, we must check
+        // after each time consuming operation. For instance, let's suppose
+        // we call IPR, then shake. Between the two calls, the maximum time
+        // may be expired and we cannot proceed.
+
+        //----------------------------------------//
+        // Call the implicit path relinking
+        // for search intersification.
+        //----------------------------------------//
+
+        if(!local_stopping_criteria() &&
+           (control_params.ipr_interval > 0) &&
+           (status.stalled_iterations > 0) &&
+           (status.stalled_iterations % control_params.ipr_interval == 0)) {
+
+            // OK, these numbers are also "well-known" values for IPR,
+            // and they were tuned using several situations.
+            std::size_t block_size = ceil(params.alpha_block_size *
+                                     sqrt(params.population_size));
+
+            if(block_size > chromosome_size)
+                block_size = chromosome_size / 2;
+
+            if(logger) {
+                *logger
+                << "Path relink at " << status.current_iteration << " iteration. "
+                << "Block size: " << block_size << ". "
+                << "Type: " << params.pr_type << ". "
+                << "Distance: " << params.pr_distance_function_type << ". "
+                << "Current time: " << status.current_time
+                << std::endl;
+            }
+
+            status.num_path_relink_calls++;
+            pr_start_time = std::chrono::system_clock::now();
+
+            auto result = pathRelink(
+                params.pr_type,
+                params.pr_selection,
+                params.pr_distance_function,
+                params.pr_number_pairs,
+                params.pr_minimum_distance,
+                block_size,
+                std::chrono::duration_cast<std::chrono::seconds>
+                    (control_params.maximum_running_time - status.current_time),
+                params.pr_percentage
+            );
+
+            status.path_relink_time +=
+                std::chrono::system_clock::now() - pr_start_time;
+
+            status.current_time = std::chrono::system_clock::now() - start_time;
+
+            using BRKGA::PathRelinking::PathRelinkingResult;
+            switch(result) {
+                case PathRelinkingResult::TOO_HOMOGENEOUS:
+                    status.num_homogenities++;
+                    if(logger) {
+                        *logger
+                        << "- Populations are too too homogeneous. "
+                        << "Current time: " << status.current_time
+                        << std::endl;
+                    }
+                    break;
+
+                case PathRelinkingResult::NO_IMPROVEMENT:
+                    if(logger) {
+                        *logger
+                        << "- No improvement found. "
+                        << "Current time: " << status.current_time
+                        << std::endl;
+                    }
+                    break;
+
+                case PathRelinkingResult::ELITE_IMPROVEMENT:
+                    status.num_elite_improvements++;
+                    if(logger) {
+                        *logger
+                        << "- Improvement on the elite set but not in "
+                           "the best individual. "
+                        << "Current time: " << status.current_time
+                        << std::endl;
+                    }
+                    break;
+
+                case PathRelinkingResult::BEST_IMPROVEMENT:
+                    status.num_best_improvements++;
+                    if(logger) {
+                        *logger
+                        << "- Improvement in the best individual. "
+                        << "Current time: " << status.current_time
+                        << std::endl;
+                    }
+
+                    // Check for improvements in the best solution.
+                    if(const auto fitness = getBestFitness();
+                       betterThan(fitness, status.best_fitness)){
+
+                        status.current_time = std::chrono::system_clock::now() - start_time;
+                        std::cout << fitness << ";" << status.current_time.count() << ";R" << std::endl;
+                        status.last_update_time = status.current_time;
+
+                        status.best_fitness = fitness;
+                        status.best_chromosome = getBestChromosome();
+                        status.last_update_iteration = status.current_iteration;
+
+                        if(status.largest_iteration_offset < status.stalled_iterations)
+                            status.largest_iteration_offset = status.stalled_iterations;
+
+                        status.stalled_iterations = 0;
+
+                        for(auto& callback : info_callbacks)
+                            run &= callback(status);
+                    }
+                    break;
+
+                default:;
+            } // end switch
+        }
+
+        //----------------------------------------//
+        // Should we exchange individuals?
+        //----------------------------------------//
+        if(!local_stopping_criteria() &&
+           (control_params.exchange_interval > 0) &&
+           (status.stalled_iterations > 0) &&
+           (status.stalled_iterations % control_params.exchange_interval == 0)) {
+
+            exchangeElite(params.num_exchange_individuals);
+            status.num_exchanges++;
+            status.current_time = std::chrono::system_clock::now() - start_time;
+
+            if(logger) {
+                *logger
+                << "Exchanged " << params.num_exchange_individuals
+                << " solutions from each population. "
+                << "Iteration " << status.current_iteration << ". "
+                << "Current time: " << status.current_time
+                << std::endl;
+            }
+        } // End of exchange.
+
+        //----------------------------------------//
+        // Should we shake the populations?
+        //----------------------------------------//
+
+        if(!local_stopping_criteria() &&
+           (control_params.shake_interval > 0) &&
+           (status.stalled_iterations > 0) &&
+           (status.stalled_iterations % control_params.shake_interval == 0)) {
+
+            const double perc_intensity = random_shaking_multiplier();
+            const unsigned intensity = perc_intensity * chromosome_size;
+
+            if(params.shaking_type != ShakingType::CUSTOM) {
+                shake(intensity, params.shaking_type,
+                      params.num_independent_populations);
+            }
+            else {
+                shaken.clear();
+                params.custom_shaking(
+                    params.shaking_intensity_lower_bound,
+                    params.shaking_intensity_upper_bound,
+                    current,     // The current population.
+                    shaken       // Indices to be re-decoded.
+                );
+
+                // If shaken is empty, force the re-decode
+                // of all chromosomes of all populations.
+                // TODO: use views::enumerate when C++23 is ready.
+                if(shaken.empty()) {
+                    for(unsigned i = 0; i < current.size(); ++i)
+                        for(unsigned j = 0; j < current[i]->chromosomes.size(); ++j)
+                            shaken.push_back({i, j});
+                }
+
+                // Re-decode only the needed chromosomes.
+                #ifdef _OPENMP
+                    #pragma omp parallel for num_threads(max_threads) schedule(static,1)
+                #endif
+                for(unsigned i = 0; i < shaken.size(); ++i) {
+                    const auto [pop_idx, chr_idx] = shaken[i];
+                    current[pop_idx]->setFitness(
+                        chr_idx,
+                        decoder.decode((*current[pop_idx])(chr_idx), true)
+                    );
+                }
+
+                // Now we must sort by fitness, since things might have changed.
+                #ifdef _OPENMP
+                    #pragma omp parallel for num_threads(max_threads) schedule(static,1)
+                #endif
+                for(unsigned i = 0; i < current.size(); ++i)
+                    current[i]->sortFitness(optimization_sense);
+            }
+
+            if(logger) {
+                if(params.shaking_type != ShakingType::CUSTOM)
+                    *logger << "Shaking with intensity "
+                            << perc_intensity << ". ";
+                else
+                    *logger << "Shaking. ";
+
+                *logger
+                << "Type " << params.shaking_type << ". "
+                << "Iteration " << status.current_iteration << ". "
+                << "Current time: " << status.current_time
+                << std::endl;
+            }
+
+            status.num_shakes++;
+        } // End of shaking.
+
+        //----------------------------------------//
+        // Time to reset?
+        //----------------------------------------//
+        if(!local_stopping_criteria() &&
+           (control_params.reset_interval > 0) &&
+           (status.stalled_iterations > 0) &&
+           (status.stalled_iterations % control_params.reset_interval == 0)) {
+
+            reset();
+            status.num_resets++;
+            status.current_time = std::chrono::system_clock::now() - start_time;
+
+            if(logger) {
+                *logger
+                << "Reset population after " << control_params.reset_interval
+                << " iterations without improvement. "
+                << "Iteration " << status.current_iteration << ". "
+                << "Current time: " << status.current_time
+                << std::endl;
+            }
+        } // End of reset.
+
+
+
+        if (!optimizado && std::chrono::system_clock::now() >= (control_params.maximum_running_time - start_time) / 2) {
+            auto pob = getCurrentPopulation();
+            std::cout << "first_fitness" << decoder.decode(pob[0], true) << std::endl;
+
+            for (int chr_idx=0; chr_idx<1; chr_idx++) {
+                auto solution = decoder_graph.decode(pob[i]);
+                meta_taboo::local_search_tabu(
+                    solution,
+                    graph,
+                    0, 1, 1
+                )
+                pob[i] = encode(graph.get_num_vertices(), solution);
+            }
+
+            std::cout << "last_fitness" << decoder.decode(pob[0], true) << std::endl;
+
+            *current[population_index] = pob;
+            optimizado = true;
+        }
 
         // Check the stopping cirteria.
         run &= !local_stopping_criteria();
