@@ -2113,9 +2113,8 @@ public:
 
     AlgorithmStatus run2(
         const ControlParams& control_params,
-        std::ostream* logger = &std::cout,
         GraphMatrix& graph,
-        BRKGADecoderGraph& decoder_graph
+        std::ostream* logger = &std::cout
     );
     ///@}
 
@@ -3814,10 +3813,11 @@ BRKGA::AlgorithmStatus BRKGA_MP_IPR<Decoder>::run(
 template <class Decoder>
 BRKGA::AlgorithmStatus BRKGA_MP_IPR<Decoder>::run2(
         const ControlParams& control_params,
-        std::ostream* logger,
         GraphMatrix& graph,
-        BRKGADecoderGraph& decoder_graph
+        std::ostream* logger
     ) {
+
+    BRKGADecoderGraph decoder_graph(graph);
 
     if(!initialized)
         initialize();
@@ -3935,7 +3935,7 @@ BRKGA::AlgorithmStatus BRKGA_MP_IPR<Decoder>::run2(
             stopping_criteria(status);
     };
 
-    bool optmizado = false;
+    bool optimizado = false;
 
     while(run) {
         status.current_iteration++;
@@ -4206,25 +4206,29 @@ BRKGA::AlgorithmStatus BRKGA_MP_IPR<Decoder>::run2(
             }
         } // End of reset.
 
+        const auto elapsed_time = std::chrono::system_clock::now() - start_time;
 
+        if (!optimizado && elapsed_time >= control_params.maximum_running_time / 2) {
+            auto pob = getCurrentPopulation(0);
 
-        if (!optimizado && std::chrono::system_clock::now() >= (control_params.maximum_running_time - start_time) / 2) {
-            auto pob = getCurrentPopulation();
-            std::cout << "first_fitness" << decoder.decode(pob[0], true) << std::endl;
-
+            long long int trash = 1;
+            
             for (int chr_idx=0; chr_idx<1; chr_idx++) {
-                auto solution = decoder_graph.decode(pob[i]);
+                std::cout << "first_fitness" << decoder.decode(pob.chromosomes[chr_idx], true) << std::endl;
+                /////////////////////////////////
+                auto solution = decoder_graph.decode(pob.chromosomes[chr_idx]);
                 meta_taboo::local_search_tabu(
                     solution,
                     graph,
-                    0, 1, 1
-                )
-                pob[i] = encode(graph.get_num_vertices(), solution);
+                    0, 1, trash
+                );
+                pob.chromosomes[chr_idx] = encode(graph.get_num_vertices(), solution);
+                /////////////////////////////////
+                std::cout << "last_fitness" << decoder.decode(pob.chromosomes[chr_idx], true) << std::endl;
             }
 
-            std::cout << "last_fitness" << decoder.decode(pob[0], true) << std::endl;
 
-            *current[population_index] = pob;
+            *current[0] = pob;
             optimizado = true;
         }
 

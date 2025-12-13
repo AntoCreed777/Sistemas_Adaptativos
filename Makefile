@@ -21,9 +21,10 @@ GREEDY = Greedy.out
 GREEDY_PROB = Greedy-probabilista.out
 TABOO = Taboo.out
 BRKGA = BRKGA.out
+HYBRID = HYBRID.out
 
 # Identificar mains y fuentes comunes
-MAINS = ./src/main.cpp ./src/main_greedy.cpp ./src/main_greedy_random.cpp ./src/main_taboo.cpp ./src/main_brkga.cpp
+MAINS = ./src/main.cpp ./src/main_greedy.cpp ./src/main_greedy_random.cpp ./src/main_taboo.cpp ./src/main_brkga.cpp ./src/main_hybrid.cpp
 ALL_SOURCES = $(wildcard ./src/*.cpp)
 COMMON_SOURCES = $(filter-out $(MAINS), $(ALL_SOURCES))
 
@@ -37,7 +38,7 @@ TABOO_OBJ = $(OBJ_DIR)/main_taboo.o
 .PHONY: all clean run debug memoria
 
 # Regla por defecto: compilar el programa principal y los extras
-all: $(TARGET) $(GREEDY) $(GREEDY_PROB) $(TABOO) $(BRKGA)
+all: $(TARGET) $(GREEDY) $(GREEDY_PROB) $(TABOO) $(BRKGA) $(HYBRID)
 
 # Ejecutable principal: usa main.cpp
 $(TARGET): $(COMMON_OBJECTS) $(MAIN_OBJ) | $(OBJ_DIR)
@@ -59,10 +60,15 @@ $(TABOO): $(COMMON_OBJECTS) $(TABOO_OBJ) | $(OBJ_DIR)
 	@echo "Compilando Tabu..."
 	@$(CXX) $(COMMON_OBJECTS) $(TABOO_OBJ) -o $(TABOO) $(CXXFLAGS)
 
-# Ejecutable Tabu: usa main_brkga.cpp
+# Ejecutable BRKGA: usa main_brkga.cpp
 $(BRKGA): 
 	@echo "Compilando BRKGA..."
 	@$(CXX) -o $(BRKGA) $(CXXFLAGS) src/main_brkga.cpp src/utils.cpp src/graph_matrix.cpp src/graph_list.cpp src/greedy_random.cpp src/greedy.cpp -I ./libs/brkga_mp_ipr_cpp/brkga_mp_ipr -std=c++20
+
+# Ejecutable HYBRID: usa main_hybrid.cpp
+$(HYBRID): 
+	@echo "Compilando HYBRID..."
+	@$(CXX) -o $(HYBRID) $(CXXFLAGS) src/main_hybrid.cpp src/utils.cpp src/graph_matrix.cpp src/graph_list.cpp src/greedy_random.cpp src/greedy.cpp src/taboo_search.cpp -I ./libs/brkga_mp_ipr_cpp/brkga_mp_ipr -std=c++20
 
 # Regla para compilar los archivos objeto y guardarlos en build/
 $(OBJ_DIR)/%.o: ./src/%.cpp | $(OBJ_DIR)

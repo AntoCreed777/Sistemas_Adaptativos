@@ -1,6 +1,8 @@
 #pragma once
 #include <vector>
-#include "graph_matrix.h"  // tu clase de grafo
+#include <algorithm>  // std::sort
+#include <numeric>    // std::iota
+#include "graph_matrix.h"
 
 #include "brkga_mp_ipr_cpp/brkga_mp_ipr/fitness_type.hpp"
 #include "brkga_mp_ipr_cpp/brkga_mp_ipr/chromosome.hpp"
