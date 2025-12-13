@@ -2114,6 +2114,7 @@ public:
     AlgorithmStatus run2(
         const ControlParams& control_params,
         GraphMatrix& graph,
+        float porcentaje_tiempo_opt = 0.5,
         std::ostream* logger = &std::cout
     );
     ///@}
@@ -3814,6 +3815,7 @@ template <class Decoder>
 BRKGA::AlgorithmStatus BRKGA_MP_IPR<Decoder>::run2(
         const ControlParams& control_params,
         GraphMatrix& graph,
+        float porcentaje_tiempo_opt,
         std::ostream* logger
     ) {
 
@@ -3921,6 +3923,8 @@ BRKGA::AlgorithmStatus BRKGA_MP_IPR<Decoder>::run2(
     }
 
     const auto start_time = std::chrono::system_clock::now();
+    auto limit_opt = control_params.maximum_running_time * porcentaje_tiempo_opt;
+    auto limit_opt_original = limit_opt;
     bool run = true;
 
     const auto local_stopping_criteria = [&]() {
@@ -3934,8 +3938,6 @@ BRKGA::AlgorithmStatus BRKGA_MP_IPR<Decoder>::run2(
             ||
             stopping_criteria(status);
     };
-
-    bool optimizado = false;
 
     while(run) {
         status.current_iteration++;
@@ -4208,28 +4210,31 @@ BRKGA::AlgorithmStatus BRKGA_MP_IPR<Decoder>::run2(
 
         const auto elapsed_time = std::chrono::system_clock::now() - start_time;
 
-        if (!optimizado && elapsed_time >= control_params.maximum_running_time / 2) {
-            auto pob = getCurrentPopulation(0);
+        if (elapsed_time >= limit_opt) {
+            limit_opt += limit_opt_original;
+            auto& pob = *current[0];
+            long long int trash = 1;    // No se usa, es solo para que funcione la funcion de taboo
 
-            long long int trash = 1;
-            
-            for (int chr_idx=0; chr_idx<1; chr_idx++) {
-                std::cout << "first_fitness" << decoder.decode(pob.chromosomes[chr_idx], true) << std::endl;
+            for (int chr_idx=0; chr_idx<10; chr_idx++) {
+                auto indice_chr_for_firness = pob.fitness[chr_idx].second;
+
+                std::cout << "first_fitness" << decoder.decode(pob.chromosomes[indice_chr_for_firness], true) << std::endl;
                 /////////////////////////////////
-                auto solution = decoder_graph.decode(pob.chromosomes[chr_idx]);
+                auto solution = decoder_graph.decode(pob.chromosomes[indice_chr_for_firness]);
                 meta_taboo::local_search_tabu(
                     solution,
                     graph,
-                    0, 500, trash
+                    0, 200, trash
                 );
-                pob.chromosomes[chr_idx] = encode(graph.get_num_vertices(), solution);
+                pob.chromosomes[indice_chr_for_firness] = encode(graph.get_num_vertices(), solution);
+                pob.setFitness(
+                    indice_chr_for_firness,
+                    decoder.decode((pob)(indice_chr_for_firness), true)
+                );
+
                 /////////////////////////////////
-                std::cout << "last_fitness" << decoder.decode(pob.chromosomes[chr_idx], true) << std::endl;
+                std::cout << "last_fitness" << decoder.decode(pob.chromosomes[indice_chr_for_firness], true) << std::endl;
             }
-
-
-            *current[0] = pob;
-            optimizado = true;
         }
 
         // Check the stopping cirteria.
