@@ -10,7 +10,7 @@ namespace meta_taboo {
         std::vector<int>& current_solution,
         GraphMatrix& graph,
         int tabu_len,
-        double max_seconds,
+        long long max_milliseconds,
         long long &ms
     );
 

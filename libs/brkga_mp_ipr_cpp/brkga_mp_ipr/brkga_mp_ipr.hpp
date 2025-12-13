@@ -4220,7 +4220,7 @@ BRKGA::AlgorithmStatus BRKGA_MP_IPR<Decoder>::run2(
                 meta_taboo::local_search_tabu(
                     solution,
                     graph,
-                    0, 1, trash
+                    0, 500, trash
                 );
                 pob.chromosomes[chr_idx] = encode(graph.get_num_vertices(), solution);
                 /////////////////////////////////

@@ -53,12 +53,12 @@ namespace meta_taboo{
 
     // Búsqueda local con memoria Tabu (1-0 + 1-1, con prohibición simétrica de agregados/removidos)
     // - tabu_len: tamaño de la lista tabu (tenencia)
-    // - max_seconds: tope duro de tiempo (deadline interno)
+    // - max_milliseconds: tope duro de tiempo (deadline interno)
     void local_search_tabu(
         std::vector<int>& current_solution,
         GraphMatrix& graph,
         int tabu_len,
-        double max_seconds,
+        long long max_milliseconds,
         long long &ms
     ) {
         std::mt19937 rng(std::random_device{}());
@@ -97,7 +97,7 @@ namespace meta_taboo{
 
         // Deadline único interno
         const auto start_time = std::chrono::steady_clock::now();
-        const auto deadline = start_time + std::chrono::duration<double>(max_seconds);
+        const auto deadline = start_time + std::chrono::milliseconds(max_milliseconds);
         auto time_up = [&](){ return std::chrono::steady_clock::now() >= deadline; };
 
         while (!time_up()) {
@@ -317,7 +317,7 @@ namespace meta_taboo{
             solution,
             graph,
             /*tabu_len=*/length_taboo_list,
-            /*max_seconds=*/(double)max_seconds,
+            static_cast<long long>(max_seconds) * 1LL,
             ms
         );
 
