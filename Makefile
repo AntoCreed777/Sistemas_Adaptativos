@@ -94,4 +94,4 @@ memoria: $(TARGET)
 
 # Regla para limpiar los archivos generados
 clean:
-	@rm -rf $(OBJ_DIR) $(TARGET) $(GREEDY) $(GREEDY_PROB) $(TABOO) $(BRKGA)
+	@rm -rf $(OBJ_DIR) $(TARGET) $(GREEDY) $(GREEDY_PROB) $(TABOO) $(BRKGA) $(HYBRID)

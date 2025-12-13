@@ -4215,7 +4215,7 @@ BRKGA::AlgorithmStatus BRKGA_MP_IPR<Decoder>::run2(
             auto& pob = *current[0];
             long long int trash = 1;    // No se usa, es solo para que funcione la funcion de taboo
 
-            for (int chr_idx=0; chr_idx<10; chr_idx++) {
+            for (int chr_idx=0; chr_idx<1; chr_idx++) {
                 auto indice_chr_for_firness = pob.fitness[chr_idx].second;
 
                 std::cout << "first_fitness" << decoder.decode(pob.chromosomes[indice_chr_for_firness], true) << std::endl;
@@ -4224,7 +4224,7 @@ BRKGA::AlgorithmStatus BRKGA_MP_IPR<Decoder>::run2(
                 meta_taboo::local_search_tabu(
                     solution,
                     graph,
-                    0, 200, trash
+                    0, 500, trash
                 );
                 pob.chromosomes[indice_chr_for_firness] = encode(graph.get_num_vertices(), solution);
                 pob.setFitness(
@@ -4232,9 +4232,34 @@ BRKGA::AlgorithmStatus BRKGA_MP_IPR<Decoder>::run2(
                     decoder.decode((pob)(indice_chr_for_firness), true)
                 );
 
+                pob.sortFitness(optimization_sense);
+                
+
                 /////////////////////////////////
                 std::cout << "last_fitness" << decoder.decode(pob.chromosomes[indice_chr_for_firness], true) << std::endl;
             }
+
+            // Ya aplicaste Tabu a algunos cromosomas y llamaste a pob.sortFitness(...)
+
+            status.current_time = std::chrono::system_clock::now() - start_time;
+
+            // Volver a chequear si ahora el best de la población es mejor que el best global
+            if (const auto fitness = getBestFitness();
+                betterThan(fitness, status.best_fitness)) {
+
+                std::cout << fitness << ";" << status.current_time.count() << ";T" << std::endl;
+                status.last_update_time = status.current_time;
+
+                status.best_fitness = fitness;
+                status.best_chromosome = getBestChromosome();
+                status.last_update_iteration = status.current_iteration;
+
+                if (status.largest_iteration_offset < status.stalled_iterations)
+                    status.largest_iteration_offset = status.stalled_iterations;
+                status.stalled_iterations = 0;
+            }
+
+
         }
 
         // Check the stopping cirteria.
