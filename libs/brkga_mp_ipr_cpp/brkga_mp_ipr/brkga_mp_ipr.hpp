@@ -2114,7 +2114,9 @@ public:
     AlgorithmStatus run2(
         const ControlParams& control_params,
         GraphMatrix& graph,
-        float porcentaje_tiempo_opt = 0.5,
+        unsigned int cantidad_chr_optimizar,
+        unsigned int time_limit_optimizacion,
+        float porcentaje_tiempo_aplicar_opt = 0.5,
         std::ostream* logger = &std::cout
     );
     ///@}
@@ -3815,7 +3817,9 @@ template <class Decoder>
 BRKGA::AlgorithmStatus BRKGA_MP_IPR<Decoder>::run2(
         const ControlParams& control_params,
         GraphMatrix& graph,
-        float porcentaje_tiempo_opt,
+        unsigned int cantidad_chr_optimizar,
+        unsigned int time_limit_optimizacion,
+        float porcentaje_tiempo_aplicar_opt,
         std::ostream* logger
     ) {
 
@@ -3923,7 +3927,7 @@ BRKGA::AlgorithmStatus BRKGA_MP_IPR<Decoder>::run2(
     }
 
     const auto start_time = std::chrono::system_clock::now();
-    auto limit_opt = control_params.maximum_running_time * porcentaje_tiempo_opt;
+    auto limit_opt = control_params.maximum_running_time * porcentaje_tiempo_aplicar_opt;
     auto limit_opt_original = limit_opt;
     bool run = true;
 
@@ -4215,7 +4219,7 @@ BRKGA::AlgorithmStatus BRKGA_MP_IPR<Decoder>::run2(
             auto& pob = *current[0];
             long long int trash = 1;    // No se usa, es solo para que funcione la funcion de taboo
 
-            for (int chr_idx=0; chr_idx<1; chr_idx++) {
+            for (unsigned int chr_idx=0; chr_idx<cantidad_chr_optimizar; chr_idx++) {
                 auto indice_chr_for_firness = pob.fitness[chr_idx].second;
 
                 std::cout << "first_fitness" << decoder.decode(pob.chromosomes[indice_chr_for_firness], true) << std::endl;
@@ -4224,7 +4228,10 @@ BRKGA::AlgorithmStatus BRKGA_MP_IPR<Decoder>::run2(
                 meta_taboo::local_search_tabu(
                     solution,
                     graph,
-                    0, 500, trash
+                    0,
+                    time_limit_optimizacion,
+                    trash,
+                    nullptr // Para que no imprima nada
                 );
                 pob.chromosomes[indice_chr_for_firness] = encode(graph.get_num_vertices(), solution);
                 pob.setFitness(

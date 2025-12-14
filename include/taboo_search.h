@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <iostream>
 
 // Adelanto para evitar incluir el header completo aquí.
 class GraphMatrix;
@@ -11,7 +12,8 @@ namespace meta_taboo {
         GraphMatrix& graph,
         int tabu_len,
         long long max_milliseconds,
-        long long &ms
+        long long &ms,
+        std::ostream* logger = &std::cout
     );
 
     void local_search(std::vector<int>& current_solution, GraphMatrix& graph);

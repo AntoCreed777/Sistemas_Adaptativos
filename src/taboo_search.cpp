@@ -59,7 +59,8 @@ namespace meta_taboo{
         GraphMatrix& graph,
         int tabu_len,
         long long max_milliseconds,
-        long long &ms
+        long long &ms,
+        std::ostream* logger
     ) {
         std::mt19937 rng(std::random_device{}());
         const int n = graph.get_num_vertices();
@@ -118,7 +119,9 @@ namespace meta_taboo{
                         best = current_solution;
                         auto now = std::chrono::steady_clock::now();
                         ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - start_time).count();
-                        std::cout << best.size() << ";" << ms << ";" << "A;\n"; 
+                        if(logger) {
+                            *logger << best.size() << ";" << ms << ";" << "A;\n";
+                        }
                 } 
                 break; // reiniciar ciclo
             }
@@ -234,7 +237,9 @@ namespace meta_taboo{
                 best = current_solution;
                 auto now = std::chrono::steady_clock::now();
                 ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - start_time).count();
-                std::cout << best.size() << ";" << ms << ";" << "C;\n";
+                if(logger) {
+                    *logger << best.size() << ";" << ms << ";" << "C;\n";
+                }
             }
         }
 
