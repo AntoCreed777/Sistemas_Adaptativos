@@ -3822,6 +3822,7 @@ BRKGA::AlgorithmStatus BRKGA_MP_IPR<Decoder>::run2(
         float porcentaje_tiempo_aplicar_opt,
         std::ostream* logger
     ) {
+    const auto start_time_inicial = std::chrono::system_clock::now();
 
     BRKGADecoderGraph decoder_graph(graph);
 
@@ -3927,8 +3928,10 @@ BRKGA::AlgorithmStatus BRKGA_MP_IPR<Decoder>::run2(
     }
 
     const auto start_time = std::chrono::system_clock::now();
-    auto limit_opt = control_params.maximum_running_time * porcentaje_tiempo_aplicar_opt;
-    auto limit_opt_original = limit_opt;
+    
+    const auto tiempo_transcurrido = start_time - start_time_inicial;
+    const auto increment_limit_opt = (control_params.maximum_running_time-tiempo_transcurrido) * porcentaje_tiempo_aplicar_opt;
+    auto limit_opt = start_time + increment_limit_opt;
     bool run = true;
 
     const auto local_stopping_criteria = [&]() {
@@ -4212,10 +4215,8 @@ BRKGA::AlgorithmStatus BRKGA_MP_IPR<Decoder>::run2(
             }
         } // End of reset.
 
-        const auto elapsed_time = std::chrono::system_clock::now() - start_time;
-
-        if (elapsed_time >= limit_opt) {
-            limit_opt += limit_opt_original;
+        if (std::chrono::system_clock::now() >= limit_opt) {
+            limit_opt += increment_limit_opt;
             auto& pob = *current[0];
             long long int trash = 1;    // No se usa, es solo para que funcione la funcion de taboo
 
