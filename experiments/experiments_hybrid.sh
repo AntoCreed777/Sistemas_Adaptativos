@@ -13,9 +13,9 @@ TIME_LIMIT=10
 OUT_CSV="${OUT_DIR}/experiments_hybrid_${TIME_LIMIT}s.csv"
 
 # Parámetros específicos del híbrido
-PORCENTAJE_TIEMPO_APLICAR_OPT=0.5     # ej: 0.5 = 50% del tiempo para optimizar
-TIME_LIMIT_OPTIMIZACION=10            # tiempo límite interno de la optimización (segundos)
-CANTIDAD_CHR_OPTIMIZAR=5              # cantidad de cromosomas a optimizar
+PORCENTAJE_TIEMPO_APLICAR_OPT=0.3928     # ej: 0.5 = 50% del tiempo para optimizar
+TIME_LIMIT_OPTIMIZACION=249            # tiempo límite interno de la optimización (segundos)
+CANTIDAD_CHR_OPTIMIZAR=7              # cantidad de cromosomas a optimizar
 
 # Número máximo de ejecuciones en paralelo
 MAX_JOBS=${MAX_JOBS:-8}
