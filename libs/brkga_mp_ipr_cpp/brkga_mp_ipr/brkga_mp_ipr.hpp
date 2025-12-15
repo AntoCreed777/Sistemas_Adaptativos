@@ -4223,8 +4223,6 @@ BRKGA::AlgorithmStatus BRKGA_MP_IPR<Decoder>::run2(
             for (unsigned int chr_idx=0; chr_idx<cantidad_chr_optimizar; chr_idx++) {
                 auto indice_chr_for_firness = pob.fitness[chr_idx].second;
 
-                std::cout << "first_fitness" << decoder.decode(pob.chromosomes[indice_chr_for_firness], true) << std::endl;
-                /////////////////////////////////
                 auto solution = decoder_graph.decode(pob.chromosomes[indice_chr_for_firness]);
                 meta_taboo::local_search_tabu(
                     solution,
@@ -4242,9 +4240,6 @@ BRKGA::AlgorithmStatus BRKGA_MP_IPR<Decoder>::run2(
 
                 pob.sortFitness(optimization_sense);
                 
-
-                /////////////////////////////////
-                std::cout << "last_fitness" << decoder.decode(pob.chromosomes[indice_chr_for_firness], true) << std::endl;
             }
 
             // Ya aplicaste Tabu a algunos cromosomas y llamaste a pob.sortFitness(...)
