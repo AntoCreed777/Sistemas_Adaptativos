@@ -1,0 +1,569 @@
+List of 14
+ $ population_size              :List of 8
+  ..$ name        : chr "population_size"
+  ..$ type        : chr "i"
+  ..$ domain      : int [1:2] 100 2000
+  ..$ label       : chr ""
+  ..$ is_dependent: logi FALSE
+  ..$ isFixed     : logi FALSE
+  ..$ transform   : chr ""
+  ..$ condition   : logi TRUE
+  ..- attr(*, "class")= chr [1:3] "ParamInt" "Parameter" "list"
+ $ elite_percentage             :List of 9
+  ..$ name        : chr "elite_percentage"
+  ..$ type        : chr "r"
+  ..$ domain      : num [1:2] 0.05 0.4
+  ..$ label       : chr ""
+  ..$ is_dependent: logi FALSE
+  ..$ isFixed     : logi FALSE
+  ..$ transform   : chr ""
+  ..$ condition   : logi TRUE
+  ..$ digits      : int 4
+  ..- attr(*, "class")= chr [1:3] "ParamReal" "Parameter" "list"
+ $ mutants_percentage           :List of 9
+  ..$ name        : chr "mutants_percentage"
+  ..$ type        : chr "r"
+  ..$ domain      : num [1:2] 0.05 0.4
+  ..$ label       : chr ""
+  ..$ is_dependent: logi FALSE
+  ..$ isFixed     : logi FALSE
+  ..$ transform   : chr ""
+  ..$ condition   : logi TRUE
+  ..$ digits      : int 4
+  ..- attr(*, "class")= chr [1:3] "ParamReal" "Parameter" "list"
+ $ num_elite_parents            :List of 8
+  ..$ name        : chr "num_elite_parents"
+  ..$ type        : chr "i"
+  ..$ domain      : int [1:2] 1 5
+  ..$ label       : chr ""
+  ..$ is_dependent: logi FALSE
+  ..$ isFixed     : logi FALSE
+  ..$ transform   : chr ""
+  ..$ condition   : logi TRUE
+  ..- attr(*, "class")= chr [1:3] "ParamInt" "Parameter" "list"
+ $ total_parents                :List of 8
+  ..$ name        : chr "total_parents"
+  ..$ type        : chr "i"
+  ..$ domain      : int [1:2] 2 10
+  ..$ label       : chr ""
+  ..$ is_dependent: logi FALSE
+  ..$ isFixed     : logi FALSE
+  ..$ transform   : chr ""
+  ..$ condition   : logi TRUE
+  ..- attr(*, "class")= chr [1:3] "ParamInt" "Parameter" "list"
+ $ stall_offset                 :List of 8
+  ..$ name        : chr "stall_offset"
+  ..$ type        : chr "i"
+  ..$ domain      : int [1:2] 100 500
+  ..$ label       : chr ""
+  ..$ is_dependent: logi FALSE
+  ..$ isFixed     : logi FALSE
+  ..$ transform   : chr ""
+  ..$ condition   : logi TRUE
+  ..- attr(*, "class")= chr [1:3] "ParamInt" "Parameter" "list"
+ $ pr_percentage                :List of 9
+  ..$ name        : chr "pr_percentage"
+  ..$ type        : chr "r"
+  ..$ domain      : num [1:2] 0.1 1
+  ..$ label       : chr ""
+  ..$ is_dependent: logi FALSE
+  ..$ isFixed     : logi FALSE
+  ..$ transform   : chr ""
+  ..$ condition   : logi TRUE
+  ..$ digits      : int 4
+  ..- attr(*, "class")= chr [1:3] "ParamReal" "Parameter" "list"
+ $ pr_minimum_distance          :List of 9
+  ..$ name        : chr "pr_minimum_distance"
+  ..$ type        : chr "r"
+  ..$ domain      : num [1:2] 0.05 0.3
+  ..$ label       : chr ""
+  ..$ is_dependent: logi FALSE
+  ..$ isFixed     : logi FALSE
+  ..$ transform   : chr ""
+  ..$ condition   : logi TRUE
+  ..$ digits      : int 4
+  ..- attr(*, "class")= chr [1:3] "ParamReal" "Parameter" "list"
+ $ num_exchange_individuals     :List of 8
+  ..$ name        : chr "num_exchange_individuals"
+  ..$ type        : chr "i"
+  ..$ domain      : int [1:2] 1 5
+  ..$ label       : chr ""
+  ..$ is_dependent: logi FALSE
+  ..$ isFixed     : logi FALSE
+  ..$ transform   : chr ""
+  ..$ condition   : logi TRUE
+  ..- attr(*, "class")= chr [1:3] "ParamInt" "Parameter" "list"
+ $ alpha_block_size             :List of 9
+  ..$ name        : chr "alpha_block_size"
+  ..$ type        : chr "r"
+  ..$ domain      : num [1:2] 0.5 1.5
+  ..$ label       : chr ""
+  ..$ is_dependent: logi FALSE
+  ..$ isFixed     : logi FALSE
+  ..$ transform   : chr ""
+  ..$ condition   : logi TRUE
+  ..$ digits      : int 4
+  ..- attr(*, "class")= chr [1:3] "ParamReal" "Parameter" "list"
+ $ reset_interval               :List of 8
+  ..$ name        : chr "reset_interval"
+  ..$ type        : chr "i"
+  ..$ domain      : int [1:2] 50 300
+  ..$ label       : chr ""
+  ..$ is_dependent: logi FALSE
+  ..$ isFixed     : logi FALSE
+  ..$ transform   : chr ""
+  ..$ condition   : logi TRUE
+  ..- attr(*, "class")= chr [1:3] "ParamInt" "Parameter" "list"
+ $ cantidad_chr_optimizar       :List of 8
+  ..$ name        : chr "cantidad_chr_optimizar"
+  ..$ type        : chr "i"
+  ..$ domain      : int [1:2] 1 10
+  ..$ label       : chr ""
+  ..$ is_dependent: logi FALSE
+  ..$ isFixed     : logi FALSE
+  ..$ transform   : chr ""
+  ..$ condition   : logi TRUE
+  ..- attr(*, "class")= chr [1:3] "ParamInt" "Parameter" "list"
+ $ time_limit_optimizacion      :List of 8
+  ..$ name        : chr "time_limit_optimizacion"
+  ..$ type        : chr "i"
+  ..$ domain      : int [1:2] 100 2000
+  ..$ label       : chr ""
+  ..$ is_dependent: logi FALSE
+  ..$ isFixed     : logi FALSE
+  ..$ transform   : chr ""
+  ..$ condition   : logi TRUE
+  ..- attr(*, "class")= chr [1:3] "ParamInt" "Parameter" "list"
+ $ porcentaje_tiempo_aplicar_opt:List of 9
+  ..$ name        : chr "porcentaje_tiempo_aplicar_opt"
+  ..$ type        : chr "r"
+  ..$ domain      : num [1:2] 0.1 0.5
+  ..$ label       : chr ""
+  ..$ is_dependent: logi FALSE
+  ..$ isFixed     : logi FALSE
+  ..$ transform   : chr ""
+  ..$ condition   : logi TRUE
+  ..$ digits      : int 4
+  ..- attr(*, "class")= chr [1:3] "ParamReal" "Parameter" "list"
+Forbidden:
+[[1]]
+<bytecode: 0x60e3929927e0>
+attr(,"source")
+[1] "(num_elite_parents > total_parents - 1)"
+
+# 2025-12-14 22:24:29 -03: Initialization
+# Elitist race
+# Elitist new instances: 1
+# Elitist limit: 2
+# nbIterations: 5
+# minNbSurvival: 5
+# nbParameters: 14
+# seed: 1964153118
+# confidence level: 0.95
+# budget: 1000
+# mu: 5
+# deterministic: FALSE
+
+# 2025-12-14 22:24:29 -03: Iteration 1 of 5
+# experimentsUsed: 0
+# remainingBudget: 1000
+# currentBudget: 200
+# nbConfigurations: 33
+# Markers:
+     x No test is performed.
+     c Configurations are discarded only due to capping.
+     - The test is performed and some configurations are discarded.
+     = The test is performed but no configuration is discarded.
+     ! The test is performed and configurations could be discarded but elite configurations are preserved.
+     . All alive configurations are elite and nothing is discarded.
+
++-+-----------+-----------+-----------+----------------+-----------+--------+-----+----+------+
+| |   Instance|      Alive|       Best|       Mean best| Exp so far|  W time|  rho|KenW|  Qvar|
++-+-----------+-----------+-----------+----------------+-----------+--------+-----+----+------+
+|x|          1|         33|         27|    -22.00000000|         33|00:03:14|   NA|  NA|    NA|
+|x|          2|         33|         27|    -24.00000000|         66|00:09:43|-0.17|0.42|1.1275|
+|x|          3|         33|         14|    -24.33333333|         99|00:03:32|+0.03|0.35|0.9086|
+|x|          4|         33|         14|    -20.50000000|        132|00:10:37|+0.08|0.31|0.8622|
+|=|          5|         33|         14|    -20.40000000|        165|00:09:35|+0.06|0.25|0.8956|
+|-|          6|         15|         14|    -20.16666667|        198|00:19:15|-0.11|0.07|1.0276|
++-+-----------+-----------+-----------+----------------+-----------+--------+-----+----+------+
+Best-so-far configuration:          14    mean value:     -20.16666667
+Description of the best-so-far configuration:
+   .ID. population_size elite_percentage mutants_percentage num_elite_parents
+14   14            1666            0.394             0.1111                 2
+   total_parents stall_offset pr_percentage pr_minimum_distance
+14             7          167        0.3147              0.1552
+   num_exchange_individuals alpha_block_size reset_interval
+14                        1           0.8584            125
+   cantidad_chr_optimizar time_limit_optimizacion porcentaje_tiempo_aplicar_opt
+14                      7                     249                        0.3928
+   .PARENT.
+14       NA
+
+# 2025-12-14 23:20:28 -03: Elite configurations (first number is the configuration ID; listed from best to worst according to the sum of ranks):
+   population_size elite_percentage mutants_percentage num_elite_parents
+14            1666           0.3940             0.1111                 2
+8             1488           0.0768             0.1877                 2
+4             1369           0.3612             0.3846                 1
+22            1547           0.0659             0.3080                 1
+17            1903           0.1753             0.1549                 3
+   total_parents stall_offset pr_percentage pr_minimum_distance
+14             7          167        0.3147              0.1552
+8              4          405        0.1179              0.0536
+4              6          480        0.8491              0.1317
+22             2          142        0.9335              0.1083
+17             6          217        0.6522              0.2489
+   num_exchange_individuals alpha_block_size reset_interval
+14                        1           0.8584            125
+8                         4           0.8896            211
+4                         3           1.3271            227
+22                        2           1.4209            141
+17                        4           1.2334            282
+   cantidad_chr_optimizar time_limit_optimizacion porcentaje_tiempo_aplicar_opt
+14                      7                     249                        0.3928
+8                       6                    1140                        0.1553
+4                       8                    1734                        0.3803
+22                      6                     605                        0.1678
+17                      6                    1437                        0.4428
+# 2025-12-14 23:20:28 -03: Iteration 2 of 5
+# experimentsUsed: 198
+# remainingBudget: 802
+# currentBudget: 200
+# nbConfigurations: 32
+# Markers:
+     x No test is performed.
+     c Configurations are discarded only due to capping.
+     - The test is performed and some configurations are discarded.
+     = The test is performed but no configuration is discarded.
+     ! The test is performed and configurations could be discarded but elite configurations are preserved.
+     . All alive configurations are elite and nothing is discarded.
+
++-+-----------+-----------+-----------+----------------+-----------+--------+-----+----+------+
+| |   Instance|      Alive|       Best|       Mean best| Exp so far|  W time|  rho|KenW|  Qvar|
++-+-----------+-----------+-----------+----------------+-----------+--------+-----+----+------+
+|x|          7|         32|         14|    -11.00000000|         32|00:03:39|   NA|  NA|    NA|
+|x|          4|         32|          4|    -10.50000000|         59|00:09:27|+0.08|0.54|0.8933|
+|x|          2|         32|         37|    -16.00000000|         86|00:08:38|+0.07|0.38|0.9026|
+|x|          5|         32|         37|    -17.25000000|        113|00:08:30|+0.07|0.31|0.8990|
+|=|          6|         32|         37|    -17.40000000|        140|00:16:58|+0.05|0.24|0.9250|
+|=|          1|         32|         46|    -17.83333333|        167|00:03:00|+0.03|0.20|0.9406|
+|=|          3|         32|         14|    -18.85714286|        194|00:03:07|+0.02|0.16|0.9526|
++-+-----------+-----------+-----------+----------------+-----------+--------+-----+----+------+
+Best-so-far configuration:          14    mean value:     -18.85714286
+Description of the best-so-far configuration:
+   .ID. population_size elite_percentage mutants_percentage num_elite_parents
+14   14            1666            0.394             0.1111                 2
+   total_parents stall_offset pr_percentage pr_minimum_distance
+14             7          167        0.3147              0.1552
+   num_exchange_individuals alpha_block_size reset_interval
+14                        1           0.8584            125
+   cantidad_chr_optimizar time_limit_optimizacion porcentaje_tiempo_aplicar_opt
+14                      7                     249                        0.3928
+   .PARENT.
+14       NA
+
+# 2025-12-15 00:13:53 -03: Elite configurations (first number is the configuration ID; listed from best to worst according to the sum of ranks):
+   population_size elite_percentage mutants_percentage num_elite_parents
+14            1666           0.3940             0.1111                 2
+46            1486           0.3197             0.3853                 1
+35            1590           0.2995             0.2499                 3
+56             967           0.1246             0.3767                 1
+37            1648           0.0733             0.3314                 1
+   total_parents stall_offset pr_percentage pr_minimum_distance
+14             7          167        0.3147              0.1552
+46             8          370        0.7341              0.0657
+35             7          477        0.9537              0.2263
+56            10          319        0.9963              0.1466
+37             4          449        0.1974              0.0940
+   num_exchange_individuals alpha_block_size reset_interval
+14                        1           0.8584            125
+46                        3           1.4907            199
+35                        5           1.1265            184
+56                        1           1.4773            254
+37                        4           0.9191            274
+   cantidad_chr_optimizar time_limit_optimizacion porcentaje_tiempo_aplicar_opt
+14                      7                     249                        0.3928
+46                      6                    1763                        0.2949
+35                      7                    1622                        0.3930
+56                      4                    1580                        0.4364
+37                      1                     208                        0.2945
+# 2025-12-15 00:13:53 -03: Iteration 3 of 5
+# experimentsUsed: 392
+# remainingBudget: 608
+# currentBudget: 202
+# nbConfigurations: 29
+# Markers:
+     x No test is performed.
+     c Configurations are discarded only due to capping.
+     - The test is performed and some configurations are discarded.
+     = The test is performed but no configuration is discarded.
+     ! The test is performed and configurations could be discarded but elite configurations are preserved.
+     . All alive configurations are elite and nothing is discarded.
+
++-+-----------+-----------+-----------+----------------+-----------+--------+-----+----+------+
+| |   Instance|      Alive|       Best|       Mean best| Exp so far|  W time|  rho|KenW|  Qvar|
++-+-----------+-----------+-----------+----------------+-----------+--------+-----+----+------+
+|x|          8|         29|         46|    -11.00000000|         29|00:18:55|   NA|  NA|    NA|
+|x|          1|         29|         46|    -16.00000000|         53|00:02:31|+0.07|0.54|0.9141|
+|x|          7|         29|         64|    -14.33333333|         77|00:02:39|+0.07|0.38|0.9099|
+|x|          2|         29|         64|    -17.25000000|        101|00:07:17|+0.05|0.29|0.9412|
+|=|          5|         29|         56|    -18.00000000|        125|00:07:06|+0.10|0.28|0.8861|
+|=|          4|         29|         46|    -16.50000000|        149|00:07:55|+0.08|0.23|0.8957|
+|=|          6|         29|         46|    -16.85714286|        173|00:14:09|+0.06|0.20|0.9082|
+|-|          3|         18|         46|    -17.75000000|        197|00:02:32|-0.06|0.08|1.0007|
++-+-----------+-----------+-----------+----------------+-----------+--------+-----+----+------+
+Best-so-far configuration:          46    mean value:     -17.75000000
+Description of the best-so-far configuration:
+   .ID. population_size elite_percentage mutants_percentage num_elite_parents
+46   46            1486           0.3197             0.3853                 1
+   total_parents stall_offset pr_percentage pr_minimum_distance
+46             8          370        0.7341              0.0657
+   num_exchange_individuals alpha_block_size reset_interval
+46                        3           1.4907            199
+   cantidad_chr_optimizar time_limit_optimizacion porcentaje_tiempo_aplicar_opt
+46                      6                    1763                        0.2949
+   .PARENT.
+46        4
+
+# 2025-12-15 01:17:01 -03: Elite configurations (first number is the configuration ID; listed from best to worst according to the sum of ranks):
+   population_size elite_percentage mutants_percentage num_elite_parents
+46            1486           0.3197             0.3853                 1
+14            1666           0.3940             0.1111                 2
+35            1590           0.2995             0.2499                 3
+56             967           0.1246             0.3767                 1
+81            1763           0.3188             0.0798                 1
+   total_parents stall_offset pr_percentage pr_minimum_distance
+46             8          370        0.7341              0.0657
+14             7          167        0.3147              0.1552
+35             7          477        0.9537              0.2263
+56            10          319        0.9963              0.1466
+81             5          182        0.2922              0.1572
+   num_exchange_individuals alpha_block_size reset_interval
+46                        3           1.4907            199
+14                        1           0.8584            125
+35                        5           1.1265            184
+56                        1           1.4773            254
+81                        1           0.5643            125
+   cantidad_chr_optimizar time_limit_optimizacion porcentaje_tiempo_aplicar_opt
+46                      6                    1763                        0.2949
+14                      7                     249                        0.3928
+35                      7                    1622                        0.3930
+56                      4                    1580                        0.4364
+81                     10                     179                        0.4200
+# 2025-12-15 01:17:01 -03: Iteration 4 of 5
+# experimentsUsed: 589
+# remainingBudget: 411
+# currentBudget: 205
+# nbConfigurations: 27
+# Markers:
+     x No test is performed.
+     c Configurations are discarded only due to capping.
+     - The test is performed and some configurations are discarded.
+     = The test is performed but no configuration is discarded.
+     ! The test is performed and configurations could be discarded but elite configurations are preserved.
+     . All alive configurations are elite and nothing is discarded.
+
++-+-----------+-----------+-----------+----------------+-----------+--------+-----+----+------+
+| |   Instance|      Alive|       Best|       Mean best| Exp so far|  W time|  rho|KenW|  Qvar|
++-+-----------+-----------+-----------+----------------+-----------+--------+-----+----+------+
+|x|          9|         27|         56|    -13.00000000|         27|00:07:55|   NA|  NA|    NA|
+|x|          5|         27|         56|    -17.00000000|         49|00:06:04|+0.10|0.55|0.8512|
+|x|          8|         27|        100|    -14.66666667|         71|00:13:24|+0.01|0.34|0.9404|
+|x|          7|         27|         56|    -13.75000000|         93|00:02:10|-0.04|0.22|1.0003|
+|=|          3|         27|        105|    -16.00000000|        115|00:02:13|+0.05|0.24|0.9149|
+|=|          4|         27|        105|    -14.83333333|        137|00:06:50|+0.01|0.17|0.9584|
+|=|          2|         27|         56|    -16.42857143|        159|00:06:14|+0.04|0.18|0.9320|
+|=|          6|         27|        105|    -16.75000000|        181|00:12:20|+0.06|0.18|0.9092|
+|-|          1|         17|         46|    -17.11111111|        203|00:02:08|-0.04|0.08|0.9813|
++-+-----------+-----------+-----------+----------------+-----------+--------+-----+----+------+
+Best-so-far configuration:          46    mean value:     -17.11111111
+Description of the best-so-far configuration:
+   .ID. population_size elite_percentage mutants_percentage num_elite_parents
+46   46            1486           0.3197             0.3853                 1
+   total_parents stall_offset pr_percentage pr_minimum_distance
+46             8          370        0.7341              0.0657
+   num_exchange_individuals alpha_block_size reset_interval
+46                        3           1.4907            199
+   cantidad_chr_optimizar time_limit_optimizacion porcentaje_tiempo_aplicar_opt
+46                      6                    1763                        0.2949
+   .PARENT.
+46        4
+
+# 2025-12-15 02:16:24 -03: Elite configurations (first number is the configuration ID; listed from best to worst according to the sum of ranks):
+    population_size elite_percentage mutants_percentage num_elite_parents
+46             1486           0.3197             0.3853                 1
+103            1826           0.3353             0.1650                 3
+56              967           0.1246             0.3767                 1
+14             1666           0.3940             0.1111                 2
+105            1412           0.3968             0.1867                 3
+    total_parents stall_offset pr_percentage pr_minimum_distance
+46              8          370        0.7341              0.0657
+103             7          182        0.1152              0.1484
+56             10          319        0.9963              0.1466
+14              7          167        0.3147              0.1552
+105             8          134        0.6069              0.0753
+    num_exchange_individuals alpha_block_size reset_interval
+46                         3           1.4907            199
+103                        1           1.2504            144
+56                         1           1.4773            254
+14                         1           0.8584            125
+105                        2           1.1798            101
+    cantidad_chr_optimizar time_limit_optimizacion
+46                       6                    1763
+103                     10                     204
+56                       4                    1580
+14                       7                     249
+105                      7                     448
+    porcentaje_tiempo_aplicar_opt
+46                         0.2949
+103                        0.3546
+56                         0.4364
+14                         0.3928
+105                        0.4068
+# 2025-12-15 02:16:24 -03: Iteration 5 of 5
+# experimentsUsed: 792
+# remainingBudget: 208
+# currentBudget: 208
+# nbConfigurations: 25
+# Markers:
+     x No test is performed.
+     c Configurations are discarded only due to capping.
+     - The test is performed and some configurations are discarded.
+     = The test is performed but no configuration is discarded.
+     ! The test is performed and configurations could be discarded but elite configurations are preserved.
+     . All alive configurations are elite and nothing is discarded.
+
++-+-----------+-----------+-----------+----------------+-----------+--------+-----+----+------+
+| |   Instance|      Alive|       Best|       Mean best| Exp so far|  W time|  rho|KenW|  Qvar|
++-+-----------+-----------+-----------+----------------+-----------+--------+-----+----+------+
+|x|         10|         25|        114|    -53.00000000|         25|00:17:12|   NA|  NA|    NA|
+|x|          8|         25|         46|    -31.00000000|         45|00:13:40|-0.07|0.46|1.0794|
+|x|          2|         25|         46|    -29.33333333|         65|00:06:25|-0.13|0.25|1.0954|
+|x|          9|         25|         46|    -25.00000000|         85|00:06:27|-0.05|0.21|0.9962|
+|=|          7|         25|        110|    -22.00000000|        105|00:02:23|+0.04|0.23|0.9106|
+|=|          4|         25|        110|    -20.00000000|        125|00:06:59|-0.03|0.15|0.9764|
+|=|          1|         25|        110|    -20.14285714|        145|00:02:19|+0.04|0.18|0.9250|
+|=|          3|         25|         46|    -20.62500000|        165|00:02:23|+0.04|0.16|0.9142|
+|=|          5|         25|         46|    -20.66666667|        185|00:06:16|+0.05|0.16|0.9017|
+|=|          6|         25|         46|    -20.50000000|        205|00:12:32|+0.05|0.15|0.9052|
++-+-----------+-----------+-----------+----------------+-----------+--------+-----+----+------+
+Best-so-far configuration:          46    mean value:     -20.50000000
+Description of the best-so-far configuration:
+   .ID. population_size elite_percentage mutants_percentage num_elite_parents
+46   46            1486           0.3197             0.3853                 1
+   total_parents stall_offset pr_percentage pr_minimum_distance
+46             8          370        0.7341              0.0657
+   num_exchange_individuals alpha_block_size reset_interval
+46                        3           1.4907            199
+   cantidad_chr_optimizar time_limit_optimizacion porcentaje_tiempo_aplicar_opt
+46                      6                    1763                        0.2949
+   .PARENT.
+46        4
+
+# 2025-12-15 03:33:05 -03: Elite configurations (first number is the configuration ID; listed from best to worst according to the sum of ranks):
+    population_size elite_percentage mutants_percentage num_elite_parents
+46             1486           0.3197             0.3853                 1
+103            1826           0.3353             0.1650                 3
+14             1666           0.3940             0.1111                 2
+108            1115           0.3907             0.0998                 4
+56              967           0.1246             0.3767                 1
+    total_parents stall_offset pr_percentage pr_minimum_distance
+46              8          370        0.7341              0.0657
+103             7          182        0.1152              0.1484
+14              7          167        0.3147              0.1552
+108            10          234        0.4151              0.1204
+56             10          319        0.9963              0.1466
+    num_exchange_individuals alpha_block_size reset_interval
+46                         3           1.4907            199
+103                        1           1.2504            144
+14                         1           0.8584            125
+108                        1           0.8998            109
+56                         1           1.4773            254
+    cantidad_chr_optimizar time_limit_optimizacion
+46                       6                    1763
+103                     10                     204
+14                       7                     249
+108                      5                     587
+56                       4                    1580
+    porcentaje_tiempo_aplicar_opt
+46                         0.2949
+103                        0.3546
+14                         0.3928
+108                        0.2990
+56                         0.4364
+# 2025-12-15 03:33:05 -03: Stopped because there is not enough budget left to race more than the minimum (5).
+# You may either increase the budget or set 'minNbSurvival' to a lower value.
+# Iteration: 6
+# nbIterations: 6
+# experimentsUsed: 997
+# timeUsed: 0
+# remainingBudget: 3
+# currentBudget: 3
+# number of elites: 5
+# nbConfigurations: 5
+# Total CPU user time: 83082.68, CPU sys time: 52.781, Wall-clock time: 18516.01
+# 2025-12-15 03:33:05 -03: Starting post-selection:
+# Configurations selected: 46, 103, 14.
+# Pending instances: 0, 0, 0.
+# 2025-12-15 03:33:05 -03: seed: 1964153118
+# Configurations: 3
+# Available experiments: 3
+# minSurvival: 1
+# Markers:
+     x No test is performed.
+     c Configurations are discarded only due to capping.
+     - The test is performed and some configurations are discarded.
+     = The test is performed but no configuration is discarded.
+     ! The test is performed and configurations could be discarded but elite configurations are preserved.
+     . All alive configurations are elite and nothing is discarded.
+
++-+-----------+-----------+-----------+----------------+-----------+--------+-----+----+------+
+| |   Instance|      Alive|       Best|       Mean best| Exp so far|  W time|  rho|KenW|  Qvar|
++-+-----------+-----------+-----------+----------------+-----------+--------+-----+----+------+
+|.|          2|          3|         14|    -27.00000000|          0|00:00:00|   NA|  NA|    NA|
+|.|          6|          3|         14|    -23.00000000|          0|00:00:00|+0.00|0.50|0.3333|
+|.|         10|          3|         14|    -32.00000000|          0|00:00:00|+0.25|0.50|0.3333|
+|.|          4|          3|         14|    -26.25000000|          0|00:00:00|+0.30|0.48|0.3482|
+|.|          5|          3|         14|    -25.00000000|          0|00:00:00|+0.39|0.51|0.3179|
+|.|          7|          3|         14|    -22.66666667|          0|00:00:00|+0.05|0.21|0.5393|
+|.|          8|          3|         14|    -20.85714286|          0|00:00:00|+0.01|0.15|0.5714|
+|.|          1|          3|         14|    -20.87500000|          0|00:00:00|-0.07|0.07|0.6246|
+|.|          3|          3|         14|    -21.33333333|          0|00:00:00|-0.11|0.01|0.6592|
+|.|          9|          3|         14|    -20.40000000|          0|00:00:00|-0.10|0.01|0.5866|
+|=|         11|          3|         14|    -21.00000000|          3|00:01:34|-0.09|0.01|0.5968|
++-+-----------+-----------+-----------+----------------+-----------+--------+-----+----+------+
+Best-so-far configuration:          14    mean value:     -21.00000000
+Description of the best-so-far configuration:
+   .ID. population_size elite_percentage mutants_percentage num_elite_parents
+14   14            1666            0.394             0.1111                 2
+   total_parents stall_offset pr_percentage pr_minimum_distance
+14             7          167        0.3147              0.1552
+   num_exchange_individuals alpha_block_size reset_interval
+14                        1           0.8584            125
+   cantidad_chr_optimizar time_limit_optimizacion porcentaje_tiempo_aplicar_opt
+14                      7                     249                        0.3928
+   .PARENT.
+14       NA
+
+# 2025-12-15 03:34:39 -03: Elite configurations (first number is the configuration ID; listed from best to worst according to the sum of ranks):
+    population_size elite_percentage mutants_percentage num_elite_parents
+14             1666           0.3940             0.1111                 2
+46             1486           0.3197             0.3853                 1
+103            1826           0.3353             0.1650                 3
+    total_parents stall_offset pr_percentage pr_minimum_distance
+14              7          167        0.3147              0.1552
+46              8          370        0.7341              0.0657
+103             7          182        0.1152              0.1484
+    num_exchange_individuals alpha_block_size reset_interval
+14                         1           0.8584            125
+46                         3           1.4907            199
+103                        1           1.2504            144
+    cantidad_chr_optimizar time_limit_optimizacion
+14                       7                     249
+46                       6                    1763
+103                     10                     204
+    porcentaje_tiempo_aplicar_opt
+14                         0.3928
+46                         0.2949
+103                        0.3546
+# Total CPU user time: 83346.03, CPU sys time: 52.954, Wall-clock time: 18610.25
