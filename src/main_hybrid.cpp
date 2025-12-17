@@ -29,17 +29,17 @@ int main(int argc, char* argv[]) {
             (
                 "cantidad_chr_optimizar",
                 "Cantidad de cromosomas que optimiza en una Poblacion",
-                cxxopts::value<unsigned int>()->default_value("1")
+                cxxopts::value<unsigned int>()->default_value("7")
             )
             (
                 "time_limit_optimizacion",
                 "Tiempo limite de ejecucion de la optimizacion en milisegundos",
-                cxxopts::value<unsigned int>()->default_value("500")
+                cxxopts::value<unsigned int>()->default_value("249")
             )
             (
                 "porcentaje_tiempo_aplicar_opt",
                 "Cada cuanto porcentaje del tiempo total de ejecucion se aplicaran optimizaciones",
-                cxxopts::value<float>()->default_value("0.5")
+                cxxopts::value<float>()->default_value("0.3928")
             )
 
             // Helper
