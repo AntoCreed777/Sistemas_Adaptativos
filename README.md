@@ -48,6 +48,13 @@ Para ejecutar el algoritmo BRKGA use:
 ./BRKGA.out -i <ruta del archivo .graph> -t <tiempo maximo de ejecucion> -c <archivo .conf>
 ```
 
+## HYBRID
+Para ejecutar el algoritmo HYBRID use:
+
+```bash
+./HYBRID.out -i <ruta del archivo .graph> -t <tiempo maximo de ejecucion> -c <archivo .conf> --cantidad_chr_optimizar <cantidad> --time_limit_optimizacion <ms> --porcentaje_tiempo_aplicar_opt <porcentaje>
+```
+
 # Eliminar  ejecutables
 Para eliminar los archivos compilados e intermedios(.o), ejecute el siguiente comando:
 ```bash
